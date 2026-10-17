@@ -1,0 +1,1856 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FLX4 Fundamentals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: black stage. Lesson text on the left, the controller on the right with its screen strip, caption line and transport. One typeface, no borders, depth from tone. */
+:root{
+  color-scheme:dark;
+  --bg:#000; --s1:#0f0f11; --s2:#1c1c1f; --s3:#2c2c30; --s4:#48484d;
+  --ink:#f5f5f7; --ink2:#a1a1a6; --ink3:#6e6e73;
+  --hl:#ff4f9a; --ok:#30d158; --warn:#ff9f0a; --hot:#ff453a; --d1:#5ac8fa; --d2:#ff9f0a;
+  --dev-ink:#b0b0b8; --dev-off:#1f1f22; --dev-slot:#060607;
+  --scr-lane:#17171a; --scr-ink:#f5f5f7; --scr-dim:#77777d;
+  --font:'Space Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.app{max-width:1560px;margin:0 auto;padding:14px clamp(16px,3vw,44px) 24px;display:flex;flex-direction:column;gap:16px}
+
+.top{display:flex;align-items:center;gap:14px;min-height:44px}
+.brand{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;margin:0;white-space:nowrap}
+.brand span{font-weight:500;color:var(--ink2)}
+.overall{margin-left:auto;font-size:.84rem;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.crumb{display:flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 14px;border:0;border-radius:999px;background:var(--s2);font-size:.9rem;font-weight:500;white-space:nowrap;min-width:0;transition:background .15s}
+.crumb span{overflow:hidden;text-overflow:ellipsis}
+.crumb svg,.nav svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.crumb svg{color:var(--ink2)}
+.crumb:hover{background:var(--s3)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "booth" "body";gap:14px}
+.head{grid-area:head;min-width:0}
+.booth{grid-area:booth;min-width:0;display:flex;flex-direction:column;gap:10px}
+.body{grid-area:body;min-width:0;display:flex;flex-direction:column;gap:18px}
+@media (min-width:1000px){
+  .grid{grid-template-columns:minmax(260px,350px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"head booth" "body booth";column-gap:clamp(24px,3.4vw,56px);row-gap:20px}
+  .head{padding-top:clamp(8px,6vh,72px)}
+  .booth{justify-self:center;width:min(100%,max(480px,calc((100vh - 306px)*1.7647)))}
+  .foot{margin-top:auto}
+}
+
+.eyebrow{display:flex;align-items:baseline;gap:10px;font-size:.86rem;font-weight:500;color:var(--ink2)}
+.eyebrow b{font-weight:500;color:var(--ink3);font-variant-numeric:tabular-nums}
+.head h2{font-size:clamp(1.55rem,1.05rem + 1.5vw,2.4rem);font-weight:600;letter-spacing:-.028em;line-height:1.05;margin:8px 0 0;text-wrap:balance}
+.in{animation:rise .34s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.screen{position:relative;display:grid;grid-template-columns:176px minmax(0,1fr);height:72px;background:var(--s1);border-radius:16px;overflow:hidden}
+.reads{display:grid;grid-template-rows:1fr 1fr;min-width:0}
+.read{display:flex;align-items:center;gap:8px;padding:0 10px 0 12px;font-size:.78rem;min-width:0;white-space:nowrap}
+.read .dk{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:6px;font-style:normal;font-weight:700;font-size:.68rem;color:#000}
+.read .dk.a{background:var(--d1)} .read .dk.b{background:var(--d2)}
+.read .nm{color:var(--ink2);overflow:hidden;text-overflow:ellipsis}
+.read .bpm{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}
+.read .bar{color:var(--ink3);font-variant-numeric:tabular-nums;min-width:1.9em;text-align:right}
+.lanebox{position:relative;min-width:0}
+#lanes{position:absolute;inset:0;width:100%;height:100%;display:block}
+.status{flex:none;margin-left:auto;display:flex;align-items:center;font-size:.84rem;font-weight:500;color:var(--ink2);white-space:nowrap}
+.status::before{content:'';width:7px;height:7px;border-radius:50%;margin-right:7px;background:var(--ink3)}
+.status.ok{color:var(--ink)} .status.ok::before{background:var(--ok)} .status.warn::before{background:var(--warn)}
+
+.caps{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 12px;min-height:1.75rem;padding:0 4px}
+.capA{font-weight:600;font-size:1.04rem;letter-spacing:-.01em}
+.capA:not(:empty)::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--hl);margin-right:9px;vertical-align:.06em}
+.capS{color:var(--ink2);font-size:.98rem}
+@media (min-width:701px){ .caps{flex-wrap:nowrap} .capA{flex:none} .capS{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} }
+
+.panel-wrap{position:relative;aspect-ratio:1200/680;border-radius:22px;overflow:hidden;background:#151517;box-shadow:0 0 0 1px rgba(255,255,255,.07),0 30px 70px -30px rgba(0,0,0,.9)}
+.panel-wrap.tall{aspect-ratio:1/1}
+#panel{width:100%;height:100%;display:block;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#panel text{font-family:var(--font);font-weight:600;letter-spacing:.02em;fill:var(--dev-ink);text-anchor:middle;pointer-events:none}
+#panel .lbl{font-size:9px} #panel .big{font-size:12px} #panel .sub{font-size:7.5px;opacity:.75}
+.plate{stroke:rgba(255,255,255,.08)} .fxp{fill:rgba(0,0,0,.16);stroke:rgba(255,255,255,.06)}
+.ctl{cursor:pointer;transition:opacity .4s}
+.decor{transition:opacity .4s}
+#panel.dim .ctl:not(.hl):not(.lift):not(.sel),#panel.dim .decor{opacity:.5}
+.ring{fill:none;stroke:var(--hl);stroke-width:2.5;opacity:0;pointer-events:none;transition:opacity .3s}
+.ctl.hl .ring{opacity:.95;filter:drop-shadow(0 0 5px var(--hl))}
+.ctl.sel .ring{opacity:1;stroke:#fff;filter:none}
+.ringw{fill:none;stroke:var(--hl);opacity:0;pointer-events:none}
+.ctl.hl .ringw{opacity:.28} .ctl.sel .ringw{opacity:.2;stroke:#fff}
+.zone{fill:var(--hl);fill-opacity:0;stroke:var(--hl);stroke-width:2;opacity:0;pointer-events:none;transition:opacity .3s}
+.zone.hl{opacity:1;fill-opacity:.05}
+.sh{fill:#000;opacity:.5}
+.btn{stroke:rgba(255,255,255,.09);stroke-width:1;transition:fill .08s}
+.ctl.lit .btn{fill:var(--lit);stroke:var(--lit);filter:drop-shadow(0 0 7px var(--lit))}
+.ctl.tap .btn{stroke:#fff;stroke-width:2.5}
+.ico{fill:var(--dev-ink)}
+#panel .ctl.lit text.on,.ctl.lit .ico{fill:#111}
+.knob{stroke:rgba(255,255,255,.1);stroke-width:1} .kcap{fill:#3a3a40}
+.encin{fill:#1f1f22;stroke:rgba(255,255,255,.08)}
+.ptr{stroke:#fff;stroke-width:2.6;stroke-linecap:round}
+.dot{fill:#5a5a61} .tick{stroke:#4a4a50;stroke-width:1}
+.slot{fill:var(--dev-slot);stroke:rgba(255,255,255,.05)} .capl{stroke:#55555c;stroke-width:1.5}
+.seg{fill:var(--dev-off)} .seg.g{fill:var(--ok)} .seg.o{fill:var(--warn)} .seg.r{fill:var(--hot)}
+.edge{fill:none} .notch{fill:none;stroke:rgba(255,255,255,.13);stroke-dasharray:3 9.04}
+.plat{stroke:rgba(255,255,255,.08)} .plat2{stroke:rgba(255,255,255,.05)}
+.mark{stroke-width:4;stroke-linecap:round} .hub{fill:#1a1a1d;stroke:rgba(255,255,255,.1)} .hex{fill:none;stroke:#6a6a71;stroke-width:1.8}
+.hit{fill:transparent} .hitring{fill:none;stroke:transparent;pointer-events:stroke}
+.hand{pointer-events:none;opacity:0}
+.hand .hr{fill:none;stroke:var(--hl);stroke-width:2.5}
+.hand .hd{fill:#fff;fill-opacity:.3;stroke:#fff;stroke-width:1.5;transform-box:fill-box;transform-origin:center;transition:transform .09s,fill-opacity .09s}
+.hand.down .hd{fill-opacity:.9;transform:scale(.82)}
+.hand .hrip{fill:none;stroke:#fff;stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center}
+.hand.down .hrip{animation:rip .55s ease-out}
+@keyframes rip{from{opacity:.7;transform:scale(.8)}to{opacity:0;transform:scale(2.4)}}
+.aim{fill:none;stroke:var(--hl);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#panel.try .ctl{touch-action:none}
+#panel.try .ctl:hover .ring{opacity:.55;stroke:#fff;filter:none}
+#panel.try .ctl.grab .ring{opacity:1;stroke:#fff;filter:none}
+
+.bigplay{position:absolute;inset:0;margin:auto;width:max-content;height:max-content;display:flex;flex-direction:column;align-items:center;gap:12px;padding:0;border:0;background:none;font-size:.95rem;font-weight:600}
+.bigplay .disc{display:grid;place-items:center;width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 14px 44px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.2);transition:transform .15s}
+.bigplay:hover .disc{transform:scale(1.05)}
+.bigplay .disc svg{width:38px;height:38px;fill:#fff;margin-left:4px}
+.bigplay .t{padding:4px 13px;border-radius:999px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.tip{position:absolute;z-index:2;max-width:min(340px,calc(100% - 24px));padding:12px 15px 13px;border-radius:16px;background:rgba(34,34,38,.84);-webkit-backdrop-filter:blur(24px) saturate(1.5);backdrop-filter:blur(24px) saturate(1.5);box-shadow:0 12px 40px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.08);font-size:.92rem;line-height:1.42;color:#d6d6db;pointer-events:none}
+.tip.t{top:12px} .tip.b{bottom:12px} .tip.l{left:12px} .tip.r{right:12px}
+.tip b{display:block;color:var(--ink);font-weight:600;font-size:1rem;margin-bottom:2px}
+.tip .sh2{display:block;margin-top:7px;color:var(--ink2)}
+.tip .sh2 i,.copy b.k{font-style:normal;font-size:.8em;font-weight:600;letter-spacing:.04em;color:var(--ink);background:var(--s3);padding:.14em .5em;border-radius:6px;white-space:nowrap}
+.tip .sh2 i{margin-right:7px}
+
+.player{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 6px;background:var(--s1);border-radius:999px}
+.pp{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:0;background:var(--ink);color:#000;transition:transform .12s}
+.pp:active{transform:scale(.94)}
+.pp svg{width:22px;height:22px;fill:currentColor}
+.pp path,.icb path{display:none}
+.pp[data-s=play] .i-play,.pp[data-s=pause] .i-pause,.pp[data-s=replay] .i-replay,.pp[data-s=reset] .i-replay,.pp[data-s=none] .i-play{display:block}
+.pp:disabled{background:var(--s2);color:var(--ink3)}
+.prog{flex:1;min-width:40px;height:4px;border-radius:2px;background:var(--s3);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--ink);border-radius:2px}
+.lab{font-size:.78rem;color:var(--ink3);margin-right:-4px}
+.pick{display:flex;flex:none;padding:2px;border-radius:999px;background:var(--s2)}
+.pick button{border:0;background:transparent;color:var(--ink2);font-size:.84rem;font-weight:500;height:32px;padding:0 13px;border-radius:999px;white-space:nowrap;transition:background .15s,color .15s}
+.pick button[aria-pressed="true"]{background:var(--s4);color:var(--ink)}
+.icb{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:0;background:var(--s2)}
+.icb svg{width:19px;height:19px;fill:currentColor}
+.icb[aria-pressed="true"] .i-on,.icb[aria-pressed="false"] .i-off{display:block}
+.icb[aria-pressed="false"]{color:var(--ink3)}
+@media (max-width:1180px){ .lab{display:none} }
+
+.copy{font-size:1.0625rem;line-height:1.5;color:#c9c9cf;min-width:0}
+.copy p{margin:0 0 .8em;max-width:40ch} .copy p:last-child{margin-bottom:0}
+.copy b{font-weight:600;color:var(--ink)}
+.copy b.k{position:relative;top:-.06em}
+.copy .fine{font-size:.86rem;color:var(--ink3)}
+.copy ul{list-style:none;margin:0 0 .8em;padding:0;display:grid;gap:.55em;max-width:42ch}
+.copy ul:not(.todo) li{position:relative;padding-left:1.05em}
+.copy ul:not(.todo) li::before{content:'';position:absolute;left:1px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--ink3)}
+.copy ul.todo{gap:.8em;font-size:1rem}
+.copy ul.todo label{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.copy input[type=checkbox]{-webkit-appearance:none;appearance:none;flex:none;width:22px;height:22px;margin:1px 0 0;border-radius:50%;border:1.5px solid var(--ink3);background:transparent;display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s}
+.copy input[type=checkbox]:checked{background:var(--ink);border-color:var(--ink)}
+.copy input[type=checkbox]:checked::after{content:'';width:10px;height:5px;border-left:2px solid #000;border-bottom:2px solid #000;transform:translateY(-1.5px) rotate(-45deg)}
+.copy input:checked + span{color:var(--ink3)}
+.tw{overflow-x:auto;margin-bottom:.7em}
+table.st{border-collapse:collapse;width:100%;font-size:.9rem}
+table.st th,table.st td{text-align:left;padding:7px 12px 7px 0;border-bottom:1px solid var(--s2);vertical-align:top}
+table.st th{font-size:.76rem;color:var(--ink3);font-weight:500}
+table.st td:first-child{color:var(--ink);font-weight:500}
+table.st td:nth-child(2){font-variant-numeric:tabular-nums;white-space:nowrap}
+.padmap{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:250px;margin:.2em 0 .9em}
+.padmap span{background:var(--s2);border-radius:9px;text-align:center;padding:9px 0;font-size:.82rem;font-weight:500;color:var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:.2em 0 .9em}
+.tags span{font-size:.74rem;font-weight:500;letter-spacing:.02em;background:var(--s2);border-radius:7px;padding:3px 9px;color:var(--ink)}
+.tags span.q{background:none;color:var(--ink2);padding-left:0}
+
+.pass button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border:0;border-radius:16px;background:var(--s1);font-size:.98rem;font-weight:500;text-align:left;transition:background .15s}
+.pass button:hover{background:var(--s2)}
+.pass i{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--ink3)}
+.pass button[aria-pressed="true"] i{background:var(--ok);border-color:var(--ok)}
+.pass button[aria-pressed="true"] i::after{content:'';width:10px;height:5px;border-left:2px solid #000;border-bottom:2px solid #000;transform:translateY(-1.5px) rotate(-45deg)}
+
+.foot{display:flex;flex-direction:column;gap:10px}
+.segs{display:flex;gap:4px}
+.segs button{flex:1;min-width:3px;height:19px;padding:0;border:0;background:none}
+.segs button::after{content:'';display:block;height:3px;border-radius:2px;background:var(--s3);transition:background .2s}
+.segs button.seen::after{background:var(--ink3)} .segs button.cur::after{background:var(--ink)}
+.nav{display:flex;gap:10px}
+.nav button{display:grid;place-items:center;height:48px;border:0;border-radius:999px;font-size:1rem;font-weight:600;transition:transform .12s,background .15s,opacity .15s}
+.nav button:active:not(:disabled){transform:scale(.97)}
+#prev{flex:none;width:48px;background:var(--s2)} #prev:hover:not(:disabled){background:var(--s3)}
+.next{flex:1;background:var(--ink);color:#000}
+.nav button:disabled{opacity:.35}
+.keys{font-size:.76rem;color:var(--ink3)}
+@media (max-width:999px){ .keys{display:none} }
+
+.scrim{position:fixed;inset:0;z-index:8;background:rgba(0,0,0,.5)}
+.sheet{position:fixed;z-index:9;top:calc(env(safe-area-inset-top,0px) + 62px);right:clamp(16px,3vw,44px);width:min(400px,calc(100vw - 32px));max-height:calc(100vh - 86px);overflow-y:auto;padding:8px;border-radius:22px;background:rgba(30,30,33,.86);-webkit-backdrop-filter:blur(30px) saturate(1.6);backdrop-filter:blur(30px) saturate(1.6);box-shadow:0 24px 70px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.08);animation:rise .22s cubic-bezier(.2,.7,.2,1) both}
+.sheet-h{display:flex;justify-content:space-between;align-items:baseline;padding:10px 12px 8px;font-weight:600}
+.sheet-h span{font-weight:500;font-size:.84rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.sess{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:9px 12px;border:0;border-radius:14px;background:none;text-align:left;transition:background .12s}
+.sess:hover{background:rgba(255,255,255,.06)}
+.sess.cur{background:rgba(255,255,255,.1)}
+.sess .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums}
+.sess.done .n{background:var(--ok);color:#000}
+.sess .nm{font-weight:600;font-size:.98rem;line-height:1.25}
+.sess .sb{display:block;font-weight:400;font-size:.82rem;color:var(--ink2)}
+.sess .ct{font-size:.78rem;color:var(--ink3);font-variant-numeric:tabular-nums}
+.opts{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:14px;background:none;font-size:.95rem;text-align:left}
+.sw i{flex:none;position:relative;width:44px;height:26px;border-radius:13px;background:var(--s4);transition:background .2s}
+.sw i::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.sw[aria-checked="true"] i{background:var(--ok)}
+.sw[aria-checked="true"] i::after{transform:translateX(18px)}
+
+.midi{flex:none;display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:0;border-radius:999px;background:var(--s2);font-size:.9rem;font-weight:500;white-space:nowrap;transition:background .15s}
+.midi:hover{background:var(--s3)}
+.midi i{width:7px;height:7px;border-radius:50%;background:var(--ink3)}
+.midi.on i{background:var(--ok)} .midi.err i{background:var(--warn)}
+.drill{background:var(--s1);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:600}
+.dr-h span{font-weight:500;font-size:.82rem;color:var(--ink3);font-variant-numeric:tabular-nums}
+.dr-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.dr-list:empty{display:none}
+.dr-list li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:start;font-size:.94rem;line-height:1.35;color:var(--ink3)}
+.dr-list li.tog{margin-top:-3px}
+.dr-list li i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--s4);font-style:normal;font-size:.72rem;font-weight:600;font-variant-numeric:tabular-nums}
+.dr-list li.cur{color:var(--ink)} .dr-list li.cur i{border-color:var(--hl);color:var(--hl)}
+.dr-list li.ok{color:var(--ink2)} .dr-list li.ok i{background:var(--ok);border-color:var(--ok)}
+.dr-list li.ok i::after{content:'';width:9px;height:4.5px;border-left:2px solid #000;border-bottom:2px solid #000;transform:translateY(-1px) rotate(-45deg)}
+.dr-list li.bad{color:var(--ink)} .dr-list li.bad i{background:var(--hot);border-color:var(--hot);color:#000}
+.dr-list em{font-style:normal;font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--ink);background:var(--s3);padding:.12em .5em;border-radius:6px;white-space:nowrap;margin-left:4px;vertical-align:.08em}
+.dr-list li:not(.cur):not(.bad) em{color:var(--ink3);background:var(--s2)}
+.dr-list .dn{height:26px;padding:0 11px;border:0;border-radius:999px;background:var(--ink);color:#000;font-size:.8rem;font-weight:600}
+.dr-msg{font-size:.9rem;color:var(--ink2);line-height:1.4}
+.dr-msg:empty{display:none}
+.dr-msg.bad{color:#ff8a80} .dr-msg.good{color:var(--ok);font-weight:600}
+.dr-act{display:flex;gap:8px;flex-wrap:wrap}
+.dr-act button{height:38px;padding:0 16px;border:0;border-radius:999px;background:var(--s2);font-size:.92rem;font-weight:500;transition:background .15s}
+.dr-act button:hover{background:var(--s3)}
+.dr-act button.pri{background:var(--ink);color:#000;font-weight:600}
+.segs button.aced::after{background:var(--ok)}
+.segs button.aced.cur::after{background:var(--ink)}
+#panel.learn .ctl{cursor:crosshair}
+#panel.learn .ctl:hover .ring{opacity:.6;stroke:#fff;filter:none}
+.mbody{padding:2px 12px 10px;font-size:.92rem;line-height:1.45;color:var(--ink2)}
+.mbody p{margin:0}
+.mlast{margin-top:10px;padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.06);font:500 .8rem ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);overflow-wrap:anywhere}
+.row{display:block;width:100%;padding:11px 12px;border:0;border-radius:14px;background:none;font-size:.95rem;text-align:left}
+.row:hover{background:rgba(255,255,255,.06)}
+.row.pri{background:var(--ink);color:#000;font-weight:600;text-align:center;margin-bottom:4px}
+@media (max-width:700px){
+  .app{padding-block:10px calc(88px + env(safe-area-inset-bottom,0px));gap:12px}
+  .grid{gap:12px}
+  .brand span,.overall{display:none}
+  .midi{margin-left:auto}
+  .head h2{margin-top:4px}
+  .screen{grid-template-columns:104px minmax(0,1fr);height:60px;border-radius:14px}
+  .read{padding:0 8px;gap:6px;font-size:.74rem} .read .nm{display:none} .read .bpm{margin-left:0}
+  .caps{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;gap:0 10px;min-height:3.1rem}
+  .capA{grid-column:1/-1}
+  .status{align-self:start;font-size:.78rem;line-height:1.5}
+  .capS{font-size:.94rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .panel-wrap{border-radius:18px}
+  .player{flex-wrap:wrap;gap:8px;padding:8px;border-radius:22px}
+  .prog{flex:1 1 calc(100% - 104px)}
+  .icb{order:1}
+  .pick{order:2;flex:1 1 auto} .pick button{flex:1;padding:0 8px}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.74);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+  .sheet{top:auto;right:0;left:0;bottom:0;width:auto;max-height:82vh;border-radius:24px 24px 0 0;padding:10px 10px calc(14px + env(safe-area-inset-bottom,0px))}
+}
+@media (prefers-reduced-motion:reduce){ .in,.sheet,.hand.down .hrip{animation:none} *{transition-duration:.01s !important} }
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1 class="brand">FLX4 <span>Fundamentals</span></h1>
+    <div class="overall" id="overall"></div>
+    <button class="midi" id="midiBtn" type="button" aria-haspopup="dialog" aria-expanded="false"><i></i><span>Connect FLX4</span></button>
+    <button class="crumb" id="menuBtn" type="button" aria-haspopup="dialog" aria-expanded="false"><span id="crumbT"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+  </header>
+  <main class="grid">
+    <div class="head">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h2 id="title"></h2>
+    </div>
+    <section class="booth" aria-label="Controller">
+      <div class="screen" aria-hidden="true">
+        <div class="reads">
+          <div class="read"><i class="dk a">1</i><span class="nm" id="r1n"></span><span class="bpm" id="r1b"></span><span class="bar" id="r1p"></span></div>
+          <div class="read"><i class="dk b">2</i><span class="nm" id="r2n"></span><span class="bpm" id="r2b"></span><span class="bar" id="r2p"></span></div>
+        </div>
+        <div class="lanebox"><canvas id="lanes"></canvas></div>
+      </div>
+      <div class="caps" aria-live="polite"><span class="capA" id="capA"></span><span class="capS" id="capS"></span><span class="status" id="status" aria-live="off" hidden></span></div>
+      <div class="panel-wrap">
+        <svg id="panel" viewBox="0 0 1200 680" role="img" aria-label="DDJ-FLX4 top panel. Two hands show each move as the demo plays."></svg>
+        <button class="bigplay" id="bigplay" type="button" hidden><span class="disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="t" id="bigT">Play demo</span></button>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="player">
+        <button class="pp" id="pp" type="button" data-s="play" aria-label="Play demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><path class="i-pause" d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/><path class="i-replay" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+        <div class="prog" aria-hidden="true"><i id="progfill"></i></div>
+        <div class="pick" role="group" aria-label="Mode"><button id="mWatch" type="button" aria-pressed="true">Watch</button><button id="mTry" type="button" aria-pressed="false">Try it</button><button id="mDrill" type="button" aria-pressed="false">Drill</button></div>
+        <span class="lab">Hearing</span>
+        <div class="pick" role="group" aria-label="What you are hearing"><button id="lsRoom" type="button" aria-pressed="true">Room</button><button id="lsPhones" type="button" aria-pressed="false">Headphones</button></div>
+        <button class="icb" id="snd" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-on" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/><path class="i-off" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></button>
+      </div>
+    </section>
+    <div class="body">
+      <div class="drill" id="drill" hidden><div class="dr-h"><span id="drTitle" style="font-weight:600;font-size:1rem;color:var(--ink)">Assignment</span><span id="drMeta"></span></div><ol class="dr-list" id="drList"></ol><div class="dr-msg" id="drMsg"></div><div class="dr-act" id="drAct"></div></div>
+      <div class="copy" id="copy"></div>
+      <div class="pass" id="pass" hidden><button type="button" id="passbtn" aria-pressed="false"><i></i><span>Mark session passed</span></button></div>
+      <div class="foot">
+        <div class="segs" id="segs"></div>
+        <div class="nav">
+          <button type="button" id="prev" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button type="button" id="next" class="next">Next</button>
+        </div>
+        <div class="keys">← → to move. Space to play or pause.</div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Sessions" hidden>
+  <div class="sheet-h">Sessions <span id="sheetProg"></span></div>
+  <div id="rail"></div>
+  <div class="opts">
+    <button class="sw" id="auto" type="button" role="switch" aria-checked="true"><span>Autoplay demos</span><i></i></button>
+    <button class="sw" id="zoom" type="button" role="switch" aria-checked="false"><span>Zoom in on the controls</span><i></i></button>
+  </div>
+</div>
+
+<div class="sheet" id="msheet" role="dialog" aria-label="Controller" hidden>
+  <div class="sheet-h">Your FLX4 <span id="mState"></span></div>
+  <div class="mbody"><p id="mText"></p><div class="mlast" id="mLast"></div></div>
+  <div class="opts">
+    <button class="row pri" id="mConnect" type="button">Connect</button>
+    <button class="row" id="mLearn" type="button">Re-map a control</button>
+    <button class="sw" id="mFlip" type="button" role="switch" aria-checked="false"><span>Flip TEMPO direction</span><i></i></button>
+    <button class="row" id="mReset" type="button">Reset mapping</button>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r) => (r || document).querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const svg = $('#panel');
+
+/* ---------- the controller: every control, where it sits and what it does ---------- */
+const C = {}, ids = [];
+const add = (id, o) => { o.id = id; C[id] = o; ids.push(id); };
+const AMB = '#ff9f0a', GRN = '#30d158', BLU = '#5ac8fa', WHT = '#f5f5f7', RED = '#ff453a', VIO = '#bf5af2';
+
+function deck(n, ox) {
+  const p = 'd' + n + '-', c = s => 'D' + n + ' ' + s;
+  add(p + 'in', {t:'round', x:ox+46, y:62, r:17, lab:'IN', sub:'IN ADJUST', lc:AMB, c:c('IN'), name:'IN', d:'Sets the start of a manual loop. During a loop, press it and turn the jog wheel to move the loop start.'});
+  add(p + 'out', {t:'round', x:ox+100, y:62, r:17, lab:'OUT', sub:'OUT ADJUST', lc:AMB, c:c('OUT'), name:'OUT', d:'Sets the end of a manual loop and starts it looping. During a loop, press it and turn the jog wheel to move the loop end.'});
+  add(p + '4beat', {t:'round', x:ox+160, y:62, r:17, lab:'4 BEAT/EXIT', sub:'ACTIVE', lc:AMB, c:c('4 BEAT/EXIT'), name:'4 BEAT/EXIT', d:'Starts a 4-beat loop from where you press it. Press it again to leave the loop.', sh:'Sets or cancels Active Loop on the nearest saved loop.'});
+  add(p + 'call-l', {t:'round', x:ox+228, y:62, r:12, tri:-1, sub:'DELETE', c:c('CALL ◄'), name:'CUE/LOOP CALL ◄', d:'During a loop, halves its length. Otherwise it calls up a saved cue or loop point.', sh:'Deletes the called-up point.'});
+  add(p + 'call-r', {t:'round', x:ox+264, y:62, r:12, tri:1, sub:'MEMORY', c:c('CALL ►'), name:'CUE/LOOP CALL ►', d:'During a loop, doubles its length. Otherwise it calls up a saved cue or loop point.', sh:'Saves the current cue or loop point.'});
+  add(p + 'sync', {t:'round', x:ox+344, y:62, r:17, lab:'BEAT SYNC', sub:'TEMPO RANGE', lc:WHT, c:c('BEAT SYNC'), name:'BEAT SYNC', d:'Matches this deck’s tempo and beatgrid to the master deck. Press again to cancel. Hold for a second to make this deck the master.', sh:'Steps the TEMPO slider range through ±6%, ±10%, ±16% and WIDE.'});
+  add(p + 'jog-edge', {t:'ring', x:ox+190, y:285, r:138, w:24, c:c('JOG EDGE'), name:'Jog wheel, outer edge', d:'Pitch bend. Push it forwards to nudge the track ahead, drag it back to hold the track behind. The change lasts only while you turn.'});
+  add(p + 'jog', {t:'jog', x:ox+190, y:285, r:124, n:n, c:c('JOG TOP'), name:'Jog wheel, top', d:'With Vinyl mode on, moving the top scratches the track, or positions it while paused.', sh:'Turn to search quickly through the track.'});
+  add(p + 'shift', {t:'rect', x:ox+46, y:476, w:46, h:22, lab:'SHIFT', lc:WHT, c:c('SHIFT'), name:'SHIFT', d:'Hold it and press another control to use that control’s second function, printed in small letters beneath it.'});
+  [['hotcue','HOT CUE','KEYBOARD','Hot Cue mode: the pads store and recall points in the track.','Keyboard mode: play a hot cue at different pitches.'],
+   ['padfx','PAD FX1','PAD FX2','Pad FX mode: an effect plays for as long as you hold a pad.','A second bank of pad effects.'],
+   ['beatjump','BEAT JUMP','BEAT LOOP','Beat Jump mode: the pads move the playhead by a set number of beats.','Beat Loop mode: the pads start loops from 1/4 beat to 32 beats.'],
+   ['sampler','SAMPLER','KEY SHIFT','Sampler mode: the pads fire sounds loaded in rekordbox’s sampler.','Key Shift mode: the pads change the key of the playing track.']
+  ].forEach((m, i) => add(p + 'mode-' + m[0], {t:'rect', x:ox+125+i*56, y:510, w:46, h:15, lab:m[1], sub:m[2], lc:WHT, c:c(m[1]), name:m[1] + ' mode button', d:m[3], sh:m[4]}));
+  for (let i = 0; i < 8; i++) add(p + 'pad' + (i+1), {t:'pad', x:ox+100+(i%4)*56, y:544+(i>3?56:0), w:50, h:50, lc:BLU, pad:i+1, dk:n, name:'Performance pad ' + (i+1), d:'What it does depends on the pad mode: a hot cue, a held effect, a beat jump, a loop or a sample.'});
+  add(p + 'cue', {t:'round', x:ox+46, y:568, r:26, txt:'CUE', lc:AMB, c:c('CUE'), name:'CUE', d:'Paused: sets the cue point here. Playing: jumps back to the cue point and stops. Held: plays from the cue point until you let go.', sh:'Returns to the start of the track.'});
+  add(p + 'play', {t:'round', x:ox+46, y:628, r:26, icon:1, sub:'PLAY/PAUSE', lc:GRN, c:c('PLAY/PAUSE'), name:'PLAY/PAUSE', d:'Starts and stops the track.'});
+  add(p + 'tempo', {t:'vslide', x:ox+360, y:480, len:160, lab:'TEMPO', c:c('TEMPO'), name:'TEMPO slider', d:'Sets the playing speed. Towards you is faster, away from you is slower.'});
+}
+deck(1, 0);
+const MX = 400, FX = 745;
+add('load1', {t:'rect', x:MX+72, y:30, w:52, h:18, txt:'LOAD', c:'LOAD 1', name:'LOAD (deck 1)', d:'Loads the selected track onto deck 1. Press twice to copy the other deck’s track and position.'});
+add('browse', {t:'enc', x:MX+145, y:31, r:17, c:'ROTARY SELECTOR', name:'Rotary selector', d:'Turn to move through your library. Press to switch between the folder tree and the track list.', sh:'Turn to zoom the waveform in rekordbox.'});
+add('load2', {t:'rect', x:MX+218, y:30, w:52, h:18, txt:'LOAD', c:'LOAD 2', name:'LOAD (deck 2)', d:'Loads the selected track onto deck 2. Press twice to copy the other deck’s track and position.'});
+add('mic', {t:'knob', x:MX+44, y:232, r:14, lab:'MIC LEVEL', c:'MIC LEVEL', name:'MIC LEVEL', d:'Volume of a microphone plugged into the rear MIC input. Keep it at minimum when no microphone is connected.'});
+add('smartcfx', {t:'round', x:MX+44, y:352, r:13, sub:'SMART CFX', lc:BLU, c:'SMART CFX', name:'SMART CFX', d:'Switches the CFX knobs from a plain filter to a preset chain of effects.', sh:'Opens the preset list in rekordbox.'});
+add('hpmix', {t:'knob', x:MX+44, y:432, r:14, lab:'PHONES MIX', l:'CUE', rr:'MASTER', c:'HEADPHONES MIX', name:'HEADPHONES MIX', d:'Balances your headphones between the channels you have cued (left) and what the room hears (right).'});
+add('hplevel', {t:'knob', x:MX+44, y:502, r:14, lab:'PHONES LEVEL', c:'HEADPHONES LEVEL', name:'HEADPHONES LEVEL', d:'Headphone volume.'});
+add('smartfader', {t:'round', x:MX+44, y:574, r:13, sub:'SMART FADER', lc:BLU, c:'SMART FADER', name:'SMART FADER', d:'When on, moving a fader also shifts the BPM, swaps the bass and adds an echo for you. It turns Beat Sync on.'});
+[1, 2].forEach(ch => {
+  const x = MX + (ch === 1 ? 128 : 232);
+  add('trim' + ch, {t:'knob', x:x, y:98, r:14, lab:'TRIM', c:'TRIM ' + ch, name:'TRIM (channel ' + ch + ')', d:'Input level for this channel. Use it to match tracks to each other: the level indicator should just reach orange on the loudest part.'});
+  add('hi' + ch, {t:'knob', x:x, y:162, r:15, lab:'HI', c:'HI ' + ch, name:'EQ HI (channel ' + ch + ')', d:'Boosts or cuts the high frequencies: hi-hats and cymbals.'});
+  add('mid' + ch, {t:'knob', x:x, y:226, r:15, lab:'MID', c:'MID ' + ch, name:'EQ MID (channel ' + ch + ')', d:'Boosts or cuts the middle frequencies: most vocals and melody.'});
+  add('low' + ch, {t:'knob', x:x, y:290, r:15, lab:'LOW', c:'LOW ' + ch, name:'EQ LOW (channel ' + ch + ')', d:'Boosts or cuts the low frequencies: kick and bass. This is the main EQ for mixing.'});
+  add('cfx' + ch, {t:'knob', x:x, y:354, r:16, lab:'CFX', c:'CFX ' + ch, name:'CFX (channel ' + ch + ')', d:'With SMART CFX off, a filter by default: left removes highs, right removes lows, centre is off. With SMART CFX on, it drives the chosen preset.'});
+  add('hcue' + ch, {t:'rect', x:x, y:412, w:46, h:20, txt:'CUE', lc:AMB, c:'CUE ' + ch, name:'Headphones CUE (channel ' + ch + ')', d:'Sends this channel to your headphones, whether or not its fader is up.', sh:'Tap in time to set the deck’s tempo by hand.'});
+  add('fader' + ch, {t:'vfade', x:x, y:590, len:124, c:'FADER ' + ch, name:'Channel fader ' + ch, d:'Volume of this channel in the room.', sh:'Fader Start: sliding it up starts the deck from its cue point.'});
+  add('meter' + ch, {t:'meter', x:MX + (ch === 1 ? 170 : 190), y:150, c:'LEVEL ' + ch, name:'Channel level indicator ' + ch, d:'Shows the channel’s level before its fader. Set TRIM so the loudest part just reaches orange.'});
+});
+add('xfader', {t:'hfade', x:MX+120, y:642, len:120, c:'CROSSFADER', name:'Crossfader', d:'Blends between deck 1 on the left and deck 2 on the right.', sh:'Fader Start: moving it starts the deck on the other side from its cue point.'});
+add('master', {t:'knob', x:FX, y:100, r:14, lab:'MASTER LEVEL', c:'MASTER LEVEL', name:'MASTER LEVEL', d:'Volume sent to the speakers. This is your room volume.'});
+add('mastercue', {t:'rect', x:FX, y:160, w:46, h:20, txt:'CUE', lc:AMB, c:'MASTER CUE', name:'Headphones CUE (master)', d:'Sends the master output to your headphones.'});
+add('fx-ch', {t:'sw3', x:FX, y:262, w:46, c:'CH SELECT', name:'BEAT FX CH SELECT', d:'Chooses which channel the Beat FX is applied to: 1, 2, or both.'});
+add('fx-select', {t:'rect', x:FX, y:324, w:46, h:18, lab:'FX SELECT', c:'FX SELECT', name:'BEAT FX SELECT', d:'Steps to the next Beat FX each time you press it.', sh:'Steps backwards through the list.'});
+add('fx-beat-l', {t:'rect', x:FX-18, y:386, w:30, h:18, tri:-1, sub:'AUTO', c:'BEAT ◄', name:'BEAT ◄', d:'Shortens the effect’s length in beats.', sh:'BPM Auto: the effect follows the track’s BPM.'});
+add('fx-beat-r', {t:'rect', x:FX+18, y:386, w:30, h:18, tri:1, sub:'TAP', c:'BEAT ►', name:'BEAT ►', d:'Lengthens the effect’s length in beats.', sh:'BPM Tap: tap to set the effect’s tempo by hand.'});
+add('fx-depth', {t:'knob', x:FX, y:468, r:16, lab:'LEVEL/DEPTH', l:'MIN', rr:'MAX', c:'LEVEL/DEPTH', name:'BEAT FX LEVEL/DEPTH', d:'How strongly the Beat FX is applied.'});
+add('fx-onoff', {t:'round', x:FX, y:552, r:18, lab:'ON/OFF', sub:'RELEASE FX', lc:BLU, c:'FX ON/OFF', name:'BEAT FX ON/OFF', d:'Turns the Beat FX on and off. It flashes while on.', sh:'Turns the effect off with a Release FX.'});
+deck(2, 800);
+
+const Z = {'z-deck1':[12,12,380,656], 'z-mixer':[406,58,284,610], 'z-fx':[700,204,90,398], 'z-deck2':[808,12,380,656]};
+
+
+function draw(o) {
+  const x = o.x, y = o.y;
+  const T = (tx, ty, s, c) => '<text class="' + (c || 'lbl') + '" x="' + tx + '" y="' + ty + '">' + s + '</text>';
+  const tri = (tx, ty, d) => '<path class="ico" d="M' + (tx - 4*d) + ' ' + (ty - 5) + 'l' + (8*d) + ' 5l' + (-8*d) + ' 5z"/>';
+  let ring = '', h = '', hit = '', over = false;
+  if (o.t === 'round') {
+    const r = o.r;
+    ring = '<circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (r + 7) + '"/>';
+    h = '<circle class="sh" cx="' + x + '" cy="' + (y + 2.5) + '" r="' + (r + 1) + '"/><circle class="btn" fill="url(#gBtn)" cx="' + x + '" cy="' + y + '" r="' + r + '"/>';
+    if (o.txt) h += T(x, y + 4.5, o.txt, 'lbl big on');
+    if (o.icon) h += '<path class="ico" d="M' + (x-10) + ' ' + (y-8) + 'l11 8l-11 8zM' + (x+4) + ' ' + (y-8) + 'h3v16h-3zM' + (x+10) + ' ' + (y-8) + 'h3v16h-3z"/>';
+    if (o.tri) h += tri(x, y, o.tri);
+    if (o.lab) h += T(x, y - r - 7, o.lab);
+    if (o.sub) h += T(x, y + r + 11, o.sub, 'sub');
+    hit = '<circle class="hit" cx="' + x + '" cy="' + y + '" r="' + Math.max(r + 5, 19) + '"/>';
+    o.bb = [x - r - 8, y - r - 8, 2*r + 16, 2*r + 16];
+  } else if (o.t === 'rect') {
+    const w = o.w, hh = o.h, th = Math.max(hh, 26) + 4;
+    ring = '<rect class="ring" x="' + (x - w/2 - 6) + '" y="' + (y - hh/2 - 6) + '" width="' + (w + 12) + '" height="' + (hh + 12) + '" rx="9"/>';
+    h = '<rect class="sh" x="' + (x - w/2) + '" y="' + (y - hh/2 + 2) + '" width="' + w + '" height="' + hh + '" rx="5"/><rect class="btn" fill="url(#gBtn)" x="' + (x - w/2) + '" y="' + (y - hh/2) + '" width="' + w + '" height="' + hh + '" rx="5"/>';
+    if (o.txt) h += T(x, y + 3.5, o.txt, 'lbl on');
+    if (o.tri) h += tri(x, y, o.tri);
+    if (o.lab) h += T(x, y - hh/2 - 6, o.lab);
+    if (o.sub) h += T(x, y + hh/2 + 10, o.sub, 'sub');
+    hit = '<rect class="hit" x="' + (x - w/2 - 5) + '" y="' + (y - th/2) + '" width="' + (w + 10) + '" height="' + th + '"/>';
+    o.bb = [x - w/2 - 8, y - hh/2 - 8, w + 16, hh + 16];
+  } else if (o.t === 'pad') {
+    ring = '<rect class="ring" x="' + (x - 4) + '" y="' + (y - 4) + '" width="' + (o.w + 8) + '" height="' + (o.h + 8) + '" rx="11"/>';
+    h = '<rect class="sh" x="' + x + '" y="' + (y + 2.5) + '" width="' + o.w + '" height="' + o.h + '" rx="8"/><rect class="btn" fill="url(#gPad)" x="' + x + '" y="' + y + '" width="' + o.w + '" height="' + o.h + '" rx="8"/>';
+    hit = '<rect class="hit" x="' + (x - 3) + '" y="' + (y - 3) + '" width="' + (o.w + 6) + '" height="' + (o.h + 6) + '"/>';
+    o.bb = [x - 6, y - 6, o.w + 12, o.h + 12];
+  } else if (o.t === 'knob' || o.t === 'enc') {
+    const r = o.r;
+    ring = '<circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (r + 8) + '"/>';
+    h = '<circle class="sh" cx="' + x + '" cy="' + (y + 3) + '" r="' + (r + 2) + '"/><circle class="knob" fill="url(#gKnob)" cx="' + x + '" cy="' + y + '" r="' + r + '"/>';
+    if (o.t === 'knob') {
+      [-150, 0, 150].forEach(a => { const q = a * Math.PI / 180; h += '<circle class="dot" cx="' + (x + (r + 4.5) * Math.sin(q)).toFixed(1) + '" cy="' + (y - (r + 4.5) * Math.cos(q)).toFixed(1) + '" r="1.2"/>'; });
+      h += '<g transform="translate(' + x + ' ' + y + ')"><g class="rot"><circle class="kcap" r="' + (r - 4.5) + '"/><line class="ptr" x1="0" y1="' + (-(r - 2)) + '" x2="0" y2="' + (-(r * 0.36)).toFixed(1) + '"/></g></g>';
+    } else {
+      h += '<circle class="encin" cx="' + x + '" cy="' + y + '" r="' + (r - 6) + '"/>';
+    }
+    if (o.lab) h += T(x, y - r - 10, o.lab);
+    if (o.l) h += T(x - r - 4, y + r + 12, o.l, 'sub');
+    if (o.rr) h += T(x + r + 6, y + r + 12, o.rr, 'sub');
+    hit = '<circle class="hit" cx="' + x + '" cy="' + y + '" r="' + Math.max(r + 7, 21) + '"/>';
+    o.bb = [x - r - 9, y - r - 9, 2*r + 18, 2*r + 18];
+  } else if (o.t === 'vfade' || o.t === 'vslide') {
+    const L = o.len, y0 = o.t === 'vfade' ? y - L : y;
+    ring = '<rect class="ring" x="' + (x - 27) + '" y="' + (y0 - 16) + '" width="54" height="' + (L + 32) + '" rx="12"/>';
+    h = '<rect class="slot" x="' + (x - 3) + '" y="' + (y0 - 4) + '" width="6" height="' + (L + 8) + '" rx="3"/>';
+    for (let i = 0; i <= 4; i++) { const ty = y0 + i * L / 4; h += '<path class="tick" d="M' + (x - 17) + ' ' + ty + 'h8M' + (x + 9) + ' ' + ty + 'h8"/>'; }
+    h += '<g transform="translate(' + x + ' ' + y + ')"><g class="cap"><rect class="sh" x="-19" y="-7" width="38" height="21" rx="4"/><rect class="capb" fill="url(#gCap)" x="-19" y="-10" width="38" height="20" rx="4"/><path class="capl" d="M-19 0H19"/></g></g>';
+    if (o.lab) { h += T(x, y0 + L + 27, o.lab); h += T(x + 22, y0 + 3, '–', 'sub') + T(x + 22, y0 + L + 3, '+', 'sub'); }
+    hit = '<rect class="hit" x="' + (x - 27) + '" y="' + (y0 - 16) + '" width="54" height="' + (L + 32) + '"/>';
+    o.bb = [x - 30, y0 - 20, 60, L + 40];
+  } else if (o.t === 'hfade') {
+    const L = o.len;
+    ring = '<rect class="ring" x="' + (x - 19) + '" y="' + (y - 25) + '" width="' + (L + 38) + '" height="50" rx="12"/>';
+    h = '<rect class="slot" x="' + (x - 4) + '" y="' + (y - 3) + '" width="' + (L + 8) + '" height="6" rx="3"/>';
+    h += '<path class="tick" d="M' + (x + L/2) + ' ' + (y - 16) + 'v6M' + (x + L/2) + ' ' + (y + 10) + 'v6"/>';
+    h += '<g transform="translate(' + x + ' ' + y + ')"><g class="cap"><rect class="sh" x="-9" y="-15" width="22" height="34" rx="4"/><rect class="capb" fill="url(#gCap)" x="-11" y="-17" width="22" height="34" rx="4"/><path class="capl" d="M0 -17V17"/></g></g>';
+    hit = '<rect class="hit" x="' + (x - 19) + '" y="' + (y - 25) + '" width="' + (L + 38) + '" height="50"/>';
+    o.bb = [x - 22, y - 28, L + 44, 56];
+  } else if (o.t === 'sw3') {
+    const w = o.w;
+    ring = '<rect class="ring" x="' + (x - w/2 - 7) + '" y="' + (y - 25) + '" width="' + (w + 14) + '" height="40" rx="10"/>';
+    h = '<rect class="slot" x="' + (x - w/2) + '" y="' + (y - 7) + '" width="' + w + '" height="14" rx="7"/>';
+    h += '<g transform="translate(' + (x - w/2 + 7) + ' ' + y + ')"><g class="cap"><rect class="capb" fill="url(#gCap)" x="-7" y="-6" width="14" height="12" rx="4"/></g></g>';
+    h += T(x - w/2 + 7, y - 12, '1', 'sub') + T(x, y - 12, '2', 'sub') + T(x + w/2 - 4, y - 12, '1&amp;2', 'sub');
+    hit = '<rect class="hit" x="' + (x - w/2 - 7) + '" y="' + (y - 25) + '" width="' + (w + 14) + '" height="40"/>';
+    o.bb = [x - w/2 - 10, y - 28, w + 20, 46];
+  } else if (o.t === 'meter') {
+    ring = '<rect class="ring" x="' + (x - 9) + '" y="' + (y - 7) + '" width="18" height="138" rx="7"/>';
+    for (let i = 0; i < 5; i++) h += '<rect class="seg" data-i="' + (4 - i) + '" x="' + (x - 4) + '" y="' + (y + i * 26) + '" width="8" height="20" rx="2.5"/>';
+    hit = '<rect class="hit" x="' + (x - 10) + '" y="' + (y - 7) + '" width="20" height="138"/>';
+    o.bb = [x - 12, y - 10, 24, 144];
+  } else if (o.t === 'ring') {
+    h = '<circle class="edge" stroke="url(#gEdge)" cx="' + x + '" cy="' + y + '" r="' + o.r + '" stroke-width="' + o.w + '"/><circle class="notch" cx="' + x + '" cy="' + y + '" r="' + o.r + '" stroke-width="14"/>';
+    ring = '<circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (o.r + o.w/2 + 5) + '"/><circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (o.r - o.w/2 - 5) + '"/>';
+    hit = '<circle class="hitring" cx="' + x + '" cy="' + y + '" r="' + o.r + '" stroke-width="' + (o.w + 4) + '"/>';
+    over = true;
+    const R = o.r + o.w/2 + 4; o.bb = [x - R, y - R, 2*R, 2*R];
+  } else if (o.t === 'jog') {
+    const r = o.r; let hx = '';
+    for (let k = 0; k < 6; k++) { const q = (30 + 60*k) * Math.PI / 180; hx += (k ? 'L' : 'M') + (18 * Math.cos(q)).toFixed(1) + ' ' + (18 * Math.sin(q)).toFixed(1); }
+    h = '<circle class="plat" fill="url(#gPlat)" cx="' + x + '" cy="' + y + '" r="' + r + '"/><circle class="plat2" fill="url(#gPlat2)" cx="' + x + '" cy="' + y + '" r="' + (r - 30) + '"/>' +
+        '<g transform="translate(' + x + ' ' + y + ')"><g class="spin"><path class="mark" style="stroke:var(--d' + o.n + ')" d="M0 ' + (-(r - 6)) + 'V' + (-(r - 24)) + '"/><circle class="hub" r="38"/><path class="hex" d="' + hx + 'z"/></g></g>';
+    ring = '<circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (r - 8) + '"/>';
+    hit = '<circle class="hit" cx="' + x + '" cy="' + y + '" r="' + r + '"/>';
+    over = true;
+    o.bb = [x - r, y - r, 2*r, 2*r];
+  }
+  return '<g class="ctl" id="c-' + o.id + '" data-id="' + o.id + '">' + (over ? h + ring : ring + h) + hit + '</g>';
+}
+
+(function build() {
+  const T = (x, y, s, c) => '<text class="' + (c || 'lbl') + '" x="' + x + '" y="' + y + '">' + s + '</text>';
+  const lg = (id, a, b) => '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient>';
+  const hand = i => '<path class="aim" id="aim' + i + '"/><g class="hand" id="hand' + i + '"><circle class="hrip" r="14"/><circle class="hr" r="23"/><circle class="hd" r="12"/></g>';
+  let m = '<defs>' + lg('gBody', '#1a1a1c', '#0d0d0f') + lg('gPlate', '#333338', '#232327') + lg('gBtn', '#4a4a50', '#303035') + lg('gPad', '#3e3e44', '#27272b') + lg('gCap', '#f6f6f9', '#b2b2ba') + lg('gPlat2', '#3a3a40', '#242428') +
+    '<linearGradient id="gEdge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#57575e"/><stop offset=".5" stop-color="#29292d"/><stop offset="1" stop-color="#46464c"/></linearGradient>' +
+    '<radialGradient id="gKnob" cx=".5" cy=".28" r=".85"><stop offset="0" stop-color="#75757d"/><stop offset="1" stop-color="#2b2b30"/></radialGradient>' +
+    '<radialGradient id="gPlat" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#2f2f34"/><stop offset="1" stop-color="#1d1d20"/></radialGradient></defs>' +
+    '<rect class="body" fill="url(#gBody)" x="0" y="0" width="1200" height="680"/>' +
+    '<rect class="plate" fill="url(#gPlate)" x="10" y="10" width="384" height="660" rx="16"/><rect class="plate" fill="url(#gPlate)" x="402" y="10" width="396" height="660" rx="16"/><rect class="plate" fill="url(#gPlate)" x="806" y="10" width="384" height="660" rx="16"/>' +
+    '<rect class="fxp" x="700" y="204" width="90" height="398" rx="12"/>' +
+    '<g class="decor">' + T(246, 38, 'CUE/LOOP CALL') + T(1046, 38, 'CUE/LOOP CALL') + T(FX, 226, 'BEAT FX', 'lbl big') + T(FX, 368, 'BEAT') + T(528, 447, '1', 'lbl big') + T(632, 447, '2', 'lbl big') + T(444, 104, 'DDJ-FLX4') + '</g>';
+  ids.forEach(id => { m += draw(C[id]); });
+  Object.keys(Z).forEach(z => { const b = Z[z]; m += '<rect class="zone" id="' + z + '" x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="16"/>'; });
+  svg.innerHTML = m + hand(0) + hand(1);
+})();
+const el = {}; ids.forEach(id => { el[id] = document.getElementById('c-' + id); });
+const zel = {}; Object.keys(Z).forEach(z => { zel[z] = document.getElementById(z); });
+const mover = {}; ids.forEach(id => { mover[id] = el[id].querySelector('.rot,.cap'); });
+const spins = {1: el['d1-jog'].querySelector('.spin'), 2: el['d2-jog'].querySelector('.spin')};
+const segs = {1: Array.from(el.meter1.querySelectorAll('.seg')), 2: Array.from(el.meter2.querySelectorAll('.seg'))};
+const handEl = [document.getElementById('hand0'), document.getElementById('hand1')];
+const aimEl = [document.getElementById('aim0'), document.getElementById('aim1')];
+
+/* ---------- audio engine: two synthesised tracks through a working mixer ---------- */
+const LEAD = 0.14, LOOK = 0.1;
+const AE = (() => {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let ctx = null, ok = false, running = false, frozen = true, noise = null, smartBpm = 0, pOff = 0, pAt = 0, pPaused = false;
+  const G = {ch:{}};
+  const BASEBPM = {A:124, B:126, C:95, D:95};
+  const mkMap = () => ({aT:0, aP:0, rate:2, playing:false, loop:0, ls:0});
+  const mkDeck = () => ({track:null, label:'', base:120, tr:0, tempoV:.5, sync:false, playing:false, loopOn:0, cue:0, hot:{}, mode:'hotcue', nud:0, cur:mkMap(), sch:mkMap(), q:[], next:0});
+  const D = {1:mkDeck(), 2:mkDeck()};
+  const now = () => ctx ? ctx.currentTime : (pPaused ? pAt : performance.now() / 1000 - pOff);
+
+  /* tempo and position */
+  const raw = n => { const d = D[n]; return d.base * (1 + (d.tempoV - .5) * .12); };
+  const bpm = n => { const d = D[n]; if (!d.track) return 0; if (smartBpm) return smartBpm; return d.sync && D[3 - n].track ? raw(3 - n) : raw(n); };
+  const mp = (m, t) => (m.playing && !frozen) ? m.aP + Math.max(0, t - m.aT) * m.rate : m.aP;
+  const posOf = (m, t) => { let p = mp(m, t); if (m.loop > 0 && p >= m.ls + m.loop) p = m.ls + ((p - m.ls) % m.loop); return p; };
+  function apply(m, t, fn) { const p = posOf(m, t); m.aT = t; m.aP = p; fn(m); }
+  function settle(d, t) { while (d.q.length && d.q[0].t <= t) { const c = d.q.shift(); apply(d.cur, c.t, c.fn); } }
+  function change(n, t, fn) {
+    const d = D[n];
+    if (frozen) { apply(d.sch, t, fn); apply(d.cur, t, fn); return; }
+    settle(d, now());
+    if (running && ok) sched(n, t - 1e-4);
+    let i = d.q.length; while (i > 0 && d.q[i - 1].t > t) i--;
+    d.q.splice(i, 0, {t:t, fn:fn});
+    Object.assign(d.sch, d.cur); d.q.forEach(c => apply(d.sch, c.t, c.fn));
+    /* the scheduler may already be past a loop wrap that this rebuilt map has not reached: move the anchor to the same point one pass on */
+    const m = d.sch; if (m.playing && m.loop > 0 && d.next / 4 >= m.ls && d.next / 4 < m.aP - 1e-3) { m.aT += (m.ls + m.loop - m.aP) / m.rate; m.aP = m.ls; }
+  }
+  const reseek = n => { const d = D[n]; d.next = Math.ceil(d.sch.aP * 4 - 1e-6); };
+  function pos(n) { const d = D[n], t = now(); settle(d, t); return posOf(d.cur, t); }
+  const posAt = (n, t) => posOf(D[n].sch, t);
+
+  /* transport */
+  function play(n, t) { const d = D[n]; if (!d.track || d.playing) return; d.playing = true; const r = bpm(n) / 60; change(n, t, m => { m.playing = true; m.rate = r; }); reseek(n); }
+  function stop(n, t, toCue) { const d = D[n]; if (!d.track) return; d.playing = false; const c = d.cue; change(n, t, m => { m.playing = false; if (toCue) m.aP = c; }); reseek(n); }
+  function jump(n, t, to, rel) { if (!D[n].track) return; change(n, t, m => { m.aP = Math.max(0, rel ? m.aP + to : to); }); reseek(n); }
+  function loop(n, t, len) {
+    const d = D[n]; if (!d.track) return; d.loopOn = len;
+    change(n, t, m => {
+      if (len > 0) { if (!(m.loop > 0)) m.ls = len < 1 ? Math.round(m.aP * 4) / 4 : Math.round(m.aP); m.loop = len; if (m.aP >= m.ls + len) m.aP = m.ls + ((m.aP - m.ls) % len); }
+      else m.loop = 0;
+    });
+    reseek(n);
+  }
+  function setSync(n, t, on) {
+    const d = D[n], o = D[3 - n]; if (!d.track) return; d.sync = on; const r = bpm(n) / 60; let sh = 0;
+    if (on && o.track && d.playing) { const po = posOf(o.sch, t), p = posOf(d.sch, t); sh = (po - Math.floor(po)) - (p - Math.floor(p)); if (sh > .5) sh -= 1; if (sh < -.5) sh += 1; }
+    change(n, t, m => { m.rate = r; m.aP = Math.max(0, m.aP + sh); }); reseek(n);
+  }
+  function rerate() { [1, 2].forEach(n => { const d = D[n]; if (!d.track) return; const r = bpm(n) / 60 * (1 + d.nud); change(n, now(), m => { m.rate = r; }); }); }
+  function tempo(n, v) { D[n].tempoV = v; rerate(); }
+  function nudge(n, t, f) { const d = D[n]; if (!d.track) return; d.nud = f; const r = bpm(n) / 60 * (1 + f); change(n, t, m => { m.rate = r; }); }
+  function setPos(n, p) { const d = D[n]; [d.cur, d.sch].forEach(m => { m.aP = p; m.aT = now(); }); reseek(n); }
+  function advance(n, db) { const d = D[n]; if (!d.playing) return; [d.cur, d.sch].forEach(m => { let p = m.aP + db; if (m.loop > 0 && p >= m.ls + m.loop) p = m.ls + ((p - m.ls) % m.loop); m.aP = p; }); }
+  function smart(b) { smartBpm = b; rerate(); }
+  function setDeck(n, s) {
+    const d = D[n]; d.q.length = 0; d.nud = 0;
+    if (!s) { Object.assign(d, {track:null, label:'', playing:false, loopOn:0, sync:false, hot:{}, cue:0, mode:'hotcue', tempoV:.5, tr:0}); [d.cur, d.sch].forEach(m => Object.assign(m, {aT:now(), aP:0, playing:false, loop:0, ls:0})); d.next = 0; return; }
+    d.track = s.track; d.label = s.label || 'Track ' + s.track; d.base = s.base || BASEBPM[s.track] || 120; d.tr = s.tr || 0;
+    d.tempoV = s.tempoV != null ? s.tempoV : .5; d.sync = !!s.sync; d.playing = !!s.play; d.loopOn = s.loop || 0;
+    const at = s.at || 0; d.cue = s.cue != null ? s.cue : Math.floor(at); d.hot = Object.assign({}, s.hot || {}); d.mode = s.mode || 'hotcue';
+    [d.cur, d.sch].forEach(m => Object.assign(m, {aT:now(), aP:at, playing:d.playing, loop:d.loopOn, ls:Math.floor(at), rate:2}));
+    reseek(n);
+  }
+  function begin(t0) {
+    frozen = false; running = true;
+    [1, 2].forEach(n => { const d = D[n]; d.q.length = 0; d.nud = 0; [d.cur, d.sch].forEach(m => { m.aT = t0; m.playing = d.playing; m.rate = (bpm(n) || 120) / 60; }); reseek(n); });
+    if (ok) { G.gate.gain.cancelScheduledValues(0); G.gate.gain.setTargetAtTime(1, Math.max(ctx.currentTime, t0 - .05), .01); tick(); }
+  }
+  function halt() {
+    const t = now();
+    [1, 2].forEach(n => { const d = D[n]; settle(d, t); const p = posOf(d.cur, t); d.q.length = 0; [d.cur, d.sch].forEach(m => { m.aP = p; m.aT = t; }); });
+    frozen = true; running = false;
+    if (ok) { G.gate.gain.cancelScheduledValues(0); G.gate.gain.setTargetAtTime(0, ctx.currentTime, .03); }
+  }
+
+  /* scheduler */
+  function sched(n, until) {
+    const d = D[n], m = d.sch; if (!d.track || !m.playing) return; let g = 0;
+    while (g++ < 400) {
+      const p = d.next / 4;
+      if (m.loop > 0 && p >= m.ls + m.loop - 1e-6) { m.aT += (m.ls + m.loop - m.aP) / m.rate; m.aP = m.ls; d.next = Math.ceil(m.ls * 4 - 1e-6); continue; }
+      const t = m.aT + (p - m.aP) / m.rate; if (t > until) break;
+      if (t > ctx.currentTime - .03 && TR[d.track]) TR[d.track](n, d, d.next, t);
+      d.next++;
+    }
+  }
+  function tick() { if (!ok || !running || ctx.state !== 'running') return; const u = ctx.currentTime + LOOK; sched(1, u); sched(2, u); }
+
+  /* voices */
+  const mf = m => 440 * Math.pow(2, (m - 69) / 12);
+  function env(g, t, a, pk, dc) { g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(pk, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dc); }
+  function tone(n, t, type, f, pk, dc, lpf, f2) {
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + .09);
+    env(g, t, .003, pk, dc);
+    if (lpf) { const fl = ctx.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = lpf; o.connect(fl); fl.connect(g); } else o.connect(g);
+    g.connect(G.ch[n].bus); o.start(t); o.stop(t + dc + .1);
+  }
+  function nz(n, t, type, f, q, pk, dc) {
+    const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise; fl.type = type; fl.frequency.value = f; fl.Q.value = q;
+    env(g, t, .001, pk, dc); s.connect(fl); fl.connect(g); g.connect(G.ch[n].bus); s.start(t, Math.random() * .6); s.stop(t + dc + .08);
+  }
+  const kick = (n, t, f1, f2, pk, dc) => { tone(n, t, 'sine', f1, pk, dc, 0, f2); nz(n, t, 'bandpass', 3200, 1, .1, .012); };
+  const hat = (n, t, v, open) => nz(n, t, 'highpass', 8500, .7, v, open ? .14 : .03);
+  const clap = (n, t, v) => { nz(n, t, 'bandpass', 1500, .8, v, .13); nz(n, t + .012, 'bandpass', 1500, .8, v * .6, .1); };
+  const snare = (n, t, v) => { nz(n, t, 'bandpass', 2300, .6, v, .1); tone(n, t, 'triangle', 190, v * .5, .08); };
+  const rim = (n, t, v) => tone(n, t, 'triangle', 1650, v, .035);
+  const crash = (n, t) => nz(n, t, 'highpass', 5000, .5, .2, 1.1);
+
+  /* tracks: 16th-note step in, notes out. Something changes on the first beat of every phrase. */
+  function hip(n, d, step, t, v) {
+    const s = step % 16, bar = Math.floor(step / 16), sec = Math.floor(bar / 4) % 8, bis = bar % 4, tr = d.tr;
+    const full = sec !== 0 && sec !== 7, kp = v ? [0, 3, 10, 11] : [0, 7, 10], root = (v ? [36, 36, 34, 31] : [29, 29, 25, 27])[bis] + 12;
+    if (s === 0 && bis === 0) crash(n, t);
+    if (kp.indexOf(s) >= 0) { kick(n, t, 150, 50, .9, .3); if (full) tone(n, t, 'sawtooth', mf(root + tr), .42, .4, 300); }
+    if (s === 4 || s === 12) { if (v) { rim(n, t, .35); snare(n, t, .18); } else { clap(n, t, .4); snare(n, t, .2); } }
+    if (s % 2 === 0) hat(n, t, s % 4 === 0 ? .1 : .18, false);
+    if (sec >= 2 && s === 14) hat(n, t, .16, true);
+    if (bis === 3 && s >= 14) snare(n, t, .25);
+    if (full && (s === 0 || s === 6)) (v ? [[60, 63, 67], [60, 63, 67], [58, 62, 65], [55, 58, 62]] : [[53, 56, 60], [53, 56, 60], [49, 53, 56], [51, 55, 58]])[bis].forEach(m => tone(n, t, v ? 'square' : 'triangle', mf(m + tr), v ? .05 : .11, .32, 1500));
+    if (sec >= 4 && sec <= 6 && (s === 2 || s === 8 || s === 11)) tone(n, t, 'triangle', mf((v ? [79, 75, 72] : [72, 68, 65])[[2, 8, 11].indexOf(s)] + tr), .1, .2, 0);
+  }
+  const TR = {
+    A(n, d, step, t) {
+      const s = step % 16, bar = Math.floor(step / 16), ph = Math.floor(bar / 8) % 8, bip = bar % 8, ci = bip >> 1, tr = d.tr;
+      const drums = ph !== 4, bass = ph === 2 || ph === 3 || ph >= 5, chords = ph >= 3 && ph <= 6, lead = ph === 5 || ph === 6;
+      if (s === 0 && bip === 0) crash(n, t);
+      if (drums && s % 4 === 0) kick(n, t, 170, 50, .9, .28);
+      if (s % 4 === 2) hat(n, t, ph === 4 ? .1 : .26, ph >= 1);
+      if (drums && ph >= 1 && s % 2 === 1) hat(n, t, .07, false);
+      if (drums && ph >= 1 && (s === 4 || s === 12)) clap(n, t, .42);
+      if (bip === 7 && s >= 12) snare(n, t, .2 + (s - 12) * .06);
+      if (ph === 4 && bip === 7 && s >= 8 && s < 12) snare(n, t, .16);
+      if (bass && s % 4 === 2) tone(n, t, 'sawtooth', mf([45, 45, 41, 43][ci] + tr), .46, .2, 420);
+      if (bass && s === 15) tone(n, t, 'sawtooth', mf([45, 45, 41, 43][ci] + 12 + tr), .26, .1, 520);
+      if (chords && (s === 3 || s === 6 || s === 11)) [[57, 60, 64], [57, 60, 64], [53, 57, 60], [55, 59, 62]][ci].forEach(m => tone(n, t, 'sawtooth', mf(m + tr), .06, .22, 1800));
+      if (lead && s % 2 === 0) tone(n, t, 'square', mf([76, 74, 72, 69, 72, 74, 76, 79][(s / 2 + bip * 3) % 8] + tr), .07, .13, 2600);
+    },
+    B(n, d, step, t) {
+      const s = step % 16, bar = Math.floor(step / 16), ph = Math.floor(bar / 8) % 8, bip = bar % 8, ci = bip >> 1, tr = d.tr;
+      const drums = ph !== 4, bass = ph >= 1 && ph !== 4 && ph !== 7, arp = ph >= 1 && ph !== 7, hi = ph >= 5;
+      const ch = [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]][ci], root = [48, 45, 41, 43][ci];
+      if (s === 0 && bip === 0) crash(n, t);
+      if (drums && s % 4 === 0) kick(n, t, 190, 56, .85, .2);
+      if (s % 2 === 0) hat(n, t, s % 4 === 2 ? .2 : .09, false);
+      if (drums && (s === 4 || s === 12)) rim(n, t, .3);
+      if (drums && ph >= 2 && (s === 7 || s === 10)) rim(n, t, .12);
+      if (bip === 7 && s >= 14) rim(n, t, .3);
+      if (bass && (s === 3 || s === 6 || s === 10 || s === 13)) tone(n, t, 'sawtooth', mf(root + tr), .36, .16, 400);
+      if (arp) { const k = [0, 3, 6, 8, 11, 14].indexOf(s); if (k >= 0) tone(n, t, 'triangle', mf(ch[k % 3] + (hi || k > 2 ? 12 : 0) + tr), .16, .16, 0); }
+    },
+    C(n, d, step, t) { hip(n, d, step, t, 0); },
+    D(n, d, step, t) { hip(n, d, step, t, 1); }
+  };
+
+  /* mixer graph */
+  function build() {
+    const c = ctx, gn = v => { const g = c.createGain(); g.gain.value = v; return g; };
+    const bq = (type, f, q) => { const b = c.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; return b; };
+    noise = c.createBuffer(1, c.sampleRate * 2, c.sampleRate); const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    G.mix = gn(1); G.cue = gn(1); G.master = gn(1); G.roomSel = gn(1); G.hpCue = gn(.7); G.hpMas = gn(.7); G.hpLvl = gn(1); G.phSel = gn(0); G.gate = gn(0); G.out = gn(.85);
+    G.lim = c.createDynamicsCompressor(); G.lim.threshold.value = -8; G.lim.knee.value = 6; G.lim.ratio.value = 12; G.lim.attack.value = .003; G.lim.release.value = .12;
+    G.mix.connect(G.master); G.master.connect(G.roomSel); G.roomSel.connect(G.gate);
+    G.cue.connect(G.hpCue); G.mix.connect(G.hpMas); G.hpCue.connect(G.hpLvl); G.hpMas.connect(G.hpLvl); G.hpLvl.connect(G.phSel); G.phSel.connect(G.gate);
+    G.gate.connect(G.lim); G.lim.connect(G.out); G.out.connect(c.destination); G.outAn = c.createAnalyser(); G.outAn.fftSize = 2048; G.out.connect(G.outAn);
+    G.dly = c.createDelay(4); G.fb = gn(0); G.wet = gn(0); G.dly.connect(G.fb); G.fb.connect(G.dly); G.dly.connect(G.wet); G.wet.connect(G.mix);
+    [1, 2].forEach(n => {
+      const o = {bus:gn(.7), trim:gn(1), low:bq('lowshelf', 300), mid:bq('peaking', 1000, .8), hi:bq('highshelf', 4500), lp:bq('lowpass', 20000, .8), hp:bq('highpass', 20, .8), pre:gn(1), an:c.createAnalyser(), fader:gn(0), xf:gn(1), send:gn(0), cueS:gn(0)};
+      o.an.fftSize = 2048;
+      o.bus.connect(o.trim); o.trim.connect(o.low); o.low.connect(o.mid); o.mid.connect(o.hi); o.hi.connect(o.lp); o.lp.connect(o.hp); o.hp.connect(o.pre);
+      o.pre.connect(o.an); o.pre.connect(o.cueS); o.cueS.connect(G.cue); o.pre.connect(o.fader); o.fader.connect(o.xf); o.xf.connect(G.mix); o.xf.connect(o.send); o.send.connect(G.dly);
+      G.ch[n] = o;
+    });
+  }
+  const eqDb = v => v >= .5 ? (v - .5) * 12 : -40 * Math.pow((.5 - v) * 2, 1.3);
+  function refresh(s) {
+    if (!ok) return;
+    const P = s.pos, xf = P.xfader, T = ctx.currentTime, set = (p, v, tc) => p.setTargetAtTime(v, T, tc || .012);
+    let fxAny = !!s.lit['fx-onoff'] || !!s.padfx;
+    [1, 2].forEach(n => {
+      const o = G.ch[n], cv = P['cfx' + n];
+      set(o.trim.gain, Math.pow(P['trim' + n] / .6, 2));
+      let lv = P['low' + n]; if (s.smartF) { const k = clamp((xf - 1 / 3) * 3, 0, 1); lv = n === 1 ? lv * (1 - k) : lv * k; }
+      set(o.low.gain, eqDb(lv)); set(o.mid.gain, eqDb(P['mid' + n])); set(o.hi.gain, eqDb(P['hi' + n]));
+      set(o.lp.frequency, cv < .49 ? 20000 * Math.pow(.011, (.5 - cv) / .5) : 20000, .03);
+      set(o.hp.frequency, cv > .51 ? 20 * Math.pow(350, (cv - .5) / .5) : 20, .03);
+      set(o.fader.gain, Math.pow(P['fader' + n], 2));
+      set(o.xf.gain, n === 1 ? clamp(2 * (1 - xf), 0, 1) : clamp(2 * xf, 0, 1));
+      set(o.cueS.gain, s.lit['hcue' + n] ? 1 : 0);
+      const sel = P['fx-ch'] < .25 ? n === 1 : P['fx-ch'] < .75 ? n === 2 : true;
+      let send = (s.lit['fx-onoff'] && sel) || s.padfx === n ? 1 : 0;
+      if (s.lit.smartcfx) { const a = Math.abs(cv - .5) * 2; if (a > .04) { send = Math.max(send, a); fxAny = true; } }
+      set(o.send.gain, send);
+    });
+    set(G.fb.gain, fxAny ? .58 : 0, .02); set(G.wet.gain, fxAny ? .3 + P['fx-depth'] : 0, .02);
+    G.dly.delayTime.setTargetAtTime(clamp((s.padfx ? .5 : s.fxBeats) * 60 / (bpm(1) || bpm(2) || 120), .02, 3.9), T, .01);
+    set(G.master.gain, Math.pow(P.master / .5, 2));
+    set(G.hpCue.gain, Math.cos(P.hpmix * Math.PI / 2)); set(G.hpMas.gain, Math.sin(P.hpmix * Math.PI / 2)); set(G.hpLvl.gain, Math.pow(P.hplevel / .5, 2));
+    set(G.roomSel.gain, s.listen === 'room' ? 1 : 0, .03); set(G.phSel.gain, s.listen === 'phones' ? 1 : 0, .03);
+    set(G.out.gain, s.sound ? .85 : 0, .03);
+  }
+  const buf = new Uint8Array(2048);
+  function level(n) { if (!ok || !running) return 0; G.ch[n].an.getByteTimeDomainData(buf); let pk = 0; for (let i = 0; i < buf.length; i++) { const v = Math.abs(buf[i] - 128); if (v > pk) pk = v; } return pk / 128; }
+
+  const fbuf = new Float32Array(2048);
+  function peak() { if (!ok) return 0; G.outAn.getFloatTimeDomainData(fbuf); let pk = 0; for (let i = 0; i < fbuf.length; i++) { const v = Math.abs(fbuf[i]); if (v > pk) pk = v; } return pk; }
+
+  /* lifecycle */
+  function ensure() {
+    if (!AC) return Promise.resolve(false);
+    if (!ctx) { try { ctx = new AC(); build(); ok = true; setInterval(tick, 25); } catch (e) { ctx = null; ok = false; return Promise.resolve(false); } }
+    if (ctx.state === 'running') return Promise.resolve(true);
+    return ctx.resume().then(() => ctx.state === 'running', () => false);
+  }
+  function pause() { if (ctx) ctx.suspend(); else { pAt = now(); pPaused = true; } }
+  function resume() { if (ctx) return ctx.resume(); pOff = performance.now() / 1000 - pAt; pPaused = false; return Promise.resolve(); }
+  return {D, now, bpm, raw, pos, posAt, play, stop, jump, loop, setSync, tempo, nudge, setPos, advance, smart, setDeck, begin, halt, refresh, level, peak, ensure, pause, resume, tracks: TR, hasAudio: () => !!AC, isOk: () => ok, isRunning: () => running};
+})();
+
+/* ---------- simulation state: what the knobs, faders and buttons are set to ---------- */
+const BASE = {trim1:.6, trim2:.6, hi1:.5, mid1:.5, low1:.5, hi2:.5, mid2:.5, low2:.5, cfx1:.5, cfx2:.5, fader1:0, fader2:0, xfader:.5, master:.5, mic:0, hpmix:.5, hplevel:.5, 'fx-depth':.5, 'fx-ch':0, 'd1-tempo':.5, 'd2-tempo':.5};
+const sim = {pos:Object.assign({}, BASE), lit:{}, listen:'room', sound:true, smartF:false, padfx:0, fxBeats:1};
+const FXB = [.25, .5, 1, 2, 4], HOTC = [GRN, BLU, RED, AMB, VIO, '#3fd6d0', '#ff7ad1', WHT];
+let fxIdx = 2, dirty = true, gen = 0;
+const capA = $('#capA'), capS = $('#capS'), pp = $('#pp'), bigplay = $('#bigplay'), progEl = $('#progfill');
+
+function setPos(id, v) {
+  const o = C[id], m = mover[id]; if (!o || !m) return; let tr = '';
+  if (o.t === 'knob') tr = 'rotate(' + (-150 + v * 300).toFixed(1) + 'deg)';
+  else if (o.t === 'vfade') tr = 'translate(0px,' + (-v * o.len).toFixed(1) + 'px)';
+  else if (o.t === 'vslide') tr = 'translate(0px,' + (v * o.len).toFixed(1) + 'px)';
+  else if (o.t === 'hfade') tr = 'translate(' + (v * o.len).toFixed(1) + 'px,0px)';
+  else if (o.t === 'sw3') tr = 'translate(' + (v * (o.w - 14)).toFixed(1) + 'px,0px)';
+  m.style.transform = tr;
+}
+const mixBpm = () => { const a = AE.raw(1), b = AE.raw(2); return a + (b - a) * sim.pos.xfader; };
+function setCtl(id, v) {
+  sim.pos[id] = v; setPos(id, v);
+  const m = /^d([12])-tempo$/.exec(id); if (m) AE.tempo(+m[1], v);
+  if (id === 'xfader' && sim.smartF) AE.smart(mixBpm());
+  dirty = true;
+}
+const paintPos = () => Object.keys(sim.pos).forEach(id => setPos(id, sim.pos[id]));
+function paint() {
+  const L = Object.assign({}, sim.lit);
+  [1, 2].forEach(n => {
+    const d = AE.D[n], p = 'd' + n + '-'; if (!d.track) return;
+    if (d.playing) L[p + 'play'] = 1; else L[p + 'cue'] = 1;
+    if (d.sync) L[p + 'sync'] = 1;
+    if (d.loopOn) L[p + '4beat'] = 1;
+    L[p + 'mode-' + (d.mode === 'beatloop' ? 'beatjump' : d.mode)] = 1;
+    if (d.mode === 'hotcue') Object.keys(d.hot).forEach(k => { L[p + 'pad' + k] = HOTC[k - 1]; });
+    else if (d.mode === 'beatloop' && d.loopOn) { const i = [.25, .5, 1, 2, 4, 8, 16, 32].indexOf(d.loopOn); if (i >= 0) L[p + 'pad' + (i + 1)] = AMB; }
+  });
+  ids.forEach(id => { const v = L[id], g = el[id]; g.classList.toggle('lit', !!v); if (v) g.style.setProperty('--lit', typeof v === 'string' ? v : (C[id].lc || WHT)); });
+  $('#lsRoom').setAttribute('aria-pressed', String(sim.listen === 'room'));
+  $('#lsPhones').setAttribute('aria-pressed', String(sim.listen === 'phones'));
+}
+const later = (t, fn, inst) => { if (inst) { fn(); return; } const g = gen, ms = (t - AE.now()) * 1000; if (ms <= 4) fn(); else setTimeout(() => { if (g === gen) fn(); }, ms); };
+const flash = id => { const g = el[id]; if (!g) return; g.classList.add('tap'); setTimeout(() => g.classList.remove('tap'), 170); };
+
+/* ---------- what each control does when a hand works it ---------- */
+function pad(n, k, t) {
+  const d = AE.D[n];
+  if (d.mode === 'hotcue') { if (d.hot[k] == null) d.hot[k] = Math.round(AE.posAt(n, t)); else { AE.jump(n, t, d.hot[k]); if (!d.playing) AE.play(n, t); } }
+  else if (d.mode === 'beatjump') AE.jump(n, t, [1, 1, 2, 2, 4, 4, 8, 8][k - 1] * (k % 2 ? -1 : 1), true);
+  else if (d.mode === 'beatloop') { const len = [.25, .5, 1, 2, 4, 8, 16, 32][k - 1]; AE.loop(n, t, d.loopOn === len ? 0 : len); }
+}
+function press(id, t, inst, shift) {
+  const m = /^d([12])-(.+)$/.exec(id);
+  if (m) {
+    const n = +m[1], k = m[2], d = AE.D[n]; let pm;
+    if (shift) { if (k === 'mode-beatjump') d.mode = 'beatloop'; else if (k === 'cue') AE.jump(n, t, 0); else if ((pm = /^pad(\d)$/.exec(k)) && d.mode === 'hotcue') delete d.hot[+pm[1]]; }
+    else if (k === 'play') { if (d.playing) AE.stop(n, t); else AE.play(n, t); }
+    else if (k === 'cue') { if (d.playing) AE.stop(n, t, true); else if (d.track) { d.cue = Math.round(AE.posAt(n, t)); AE.jump(n, t, d.cue); } }
+    else if (k === 'sync') AE.setSync(n, t, !d.sync);
+    else if (k === '4beat') AE.loop(n, t, d.loopOn ? 0 : 4);
+    else if (k === 'call-l') { if (d.loopOn) AE.loop(n, t, d.loopOn / 2); }
+    else if (k === 'call-r') { if (d.loopOn) AE.loop(n, t, d.loopOn * 2); }
+    else if ((pm = /^mode-(.+)$/.exec(k))) d.mode = pm[1];
+    else if ((pm = /^pad(\d)$/.exec(k))) pad(n, +pm[1], t);
+    later(t, paint, inst); return;
+  }
+  if (shift) return;
+  if (id === 'hcue1' || id === 'hcue2' || id === 'mastercue' || id === 'fx-onoff' || id === 'smartcfx') { if (sim.lit[id]) delete sim.lit[id]; else sim.lit[id] = 1; }
+  else if (id === 'smartfader') {
+    sim.smartF = !sim.smartF;
+    if (sim.smartF) { sim.lit[id] = 1; AE.setSync(2, t, true); AE.smart(mixBpm()); } else { delete sim.lit[id]; AE.D[2].sync = false; AE.smart(0); }
+  }
+  else if (id === 'fx-beat-l' || id === 'fx-beat-r') { fxIdx = clamp(fxIdx + (id === 'fx-beat-r' ? 1 : -1), 0, FXB.length - 1); sim.fxBeats = FXB[fxIdx]; }
+  later(t, () => { paint(); dirty = true; }, inst);
+}
+function holdOn(id, t) {
+  const m = /^d([12])-(.+)$/.exec(id); if (!m) return; const n = +m[1], k = m[2], d = AE.D[n];
+  if (k === 'cue') { if (!d.playing && d.track) { d.cueHold = true; AE.play(n, t); } }
+  else if (k === 'shift') sim.lit[id] = 1;
+  else if (/^pad/.test(k) && d.mode === 'padfx') { sim.padfx = n; sim.lit[id] = BLU; }
+  later(t, () => { paint(); dirty = true; });
+}
+function holdOff(id, t) {
+  const m = /^d([12])-(.+)$/.exec(id); if (!m) return; const n = +m[1], k = m[2], d = AE.D[n];
+  if (k === 'cue') { if (d.cueHold) { d.cueHold = false; AE.stop(n, t, true); } }
+  else if (k === 'shift') delete sim.lit[id];
+  else if (/^pad/.test(k)) { sim.padfx = 0; delete sim.lit[id]; }
+  later(t, () => { paint(); dirty = true; });
+}
+function doFn(a, b, t, inst) { if (a === 'play') AE.play(b, t); later(t, paint, inst); }
+function deckSpec(n, s) { AE.setDeck(n, s); sim.pos['d' + n + '-tempo'] = AE.D[n].tempoV; }
+
+/* ---------- demo player: a timed script of hand moves, in beats ---------- */
+const HOME = [[330, 730], [870, 730]];
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+function ptOf(id, v) {
+  const o = C[id]; if (!o) return [600, 340]; if (v == null) v = .5;
+  if (o.t === 'knob') { const a = (-150 + v * 300) * Math.PI / 180; return [o.x + Math.sin(a) * (o.r + 3), o.y - Math.cos(a) * (o.r + 3)]; }
+  if (o.t === 'vfade') return [o.x, o.y - v * o.len];
+  if (o.t === 'vslide') return [o.x, o.y + v * o.len];
+  if (o.t === 'hfade') return [o.x + v * o.len, o.y];
+  if (o.t === 'sw3') return [o.x - o.w / 2 + 7 + v * (o.w - 14), o.y];
+  if (o.t === 'pad') return [o.x + o.w / 2, o.y + o.h / 2];
+  if (o.t === 'ring') return [o.x + o.r * .7, o.y - o.r * .7];
+  if (o.t === 'jog') return [o.x + 55, o.y - 35];
+  if (o.t === 'meter') return [o.x, o.y + 60];
+  return [o.x, o.y];
+}
+function livePt(e, tb) {
+  const o = C[e.id];
+  if (e.ty === 'nudge' && o) { const u = clamp((tb - e.at) / e.dur, 0, 1), a = (45 + (e.amt > 0 ? 35 : -35) * u) * Math.PI / 180; return [o.x + Math.sin(a) * o.r, o.y - Math.cos(a) * o.r]; }
+  if (e.ty === 'scrub' && o) { const a = AE.pos(e.n) * Math.PI / 2; return [o.x + Math.sin(a) * 70, o.y - Math.cos(a) * 70]; }
+  return ptOf(e.id, sim.pos[e.id]);
+}
+function prep(st) {
+  if (st._p) return st._p;
+  const ev = [];
+  (st.demo || []).forEach(e => {
+    const at = e[0], ty = e[1];
+    if (ty === 'press') ev.push({at:at, ty:ty, id:e[2], dur:.55});
+    else if (ty === 'combo') { ev.push({at:at, ty:'holdvis', id:e[2], dur:1.7}); ev.push({at:at + .6, ty:'press', id:e[3], dur:.55, shift:1}); }
+    else if (ty === 'move') ev.push({at:at, ty:ty, id:e[2], to:e[3], dur:e[4] || 1});
+    else if (ty === 'hold') { ev.push({at:at, ty:ty, id:e[2], dur:e[3]}); ev.push({at:at + e[3], ty:'holdEnd', id:e[2]}); }
+    else if (ty === 'nudge') { ev.push({at:at, ty:ty, n:e[2], amt:e[3], dur:e[4], id:'d' + e[2] + '-jog-edge'}); ev.push({at:at + e[4], ty:'nudgeEnd', n:e[2]}); }
+    else if (ty === 'load') { ev.push({at:at, ty:'touch', id:'browse', dur:1.2}); ev.push({at:at + 1.5, ty:ty, n:e[2], spec:e[3], id:'load' + e[2], dur:.55}); }
+    else if (ty === 'touch') ev.push({at:at, ty:ty, id:e[2], dur:e[3] || .8});
+    else if (ty === 'scrub') ev.push({at:at, ty:ty, n:e[2], to:e[3], dur:e[4], id:'d' + e[2] + '-jog'});
+    else ev.push({at:at, ty:ty, a:e[2], b:e[3]});
+  });
+  ev.forEach((e, i) => { e.i = i; }); ev.sort((x, y) => x.at - y.at || x.i - y.i);
+  const hl = [[], []], free = [-9, -9], lastPt = [HOME[0], HOME[1]], seen = []; let end = 0;
+  ev.forEach(e => {
+    end = Math.max(end, e.at + (e.dur || 0));
+    if (!e.id || !e.dur) return;
+    if (seen.indexOf(e.id) < 0) seen.push(e.id);
+    const p = ptOf(e.id, .5), cand = [0, 1].filter(h => free[h] <= e.at + 1e-6); let h;
+    if (cand.length === 2) h = dist(lastPt[0], p) <= dist(lastPt[1], p) ? 0 : 1; else if (cand.length === 1) h = cand[0]; else h = free[0] <= free[1] ? 0 : 1;
+    e.h = h; e.prev = hl[h].length ? hl[h][hl[h].length - 1] : null; e.tr0 = Math.min(e.at - .2, Math.max(free[h], e.at - 1));
+    free[h] = e.at + e.dur; lastPt[h] = p; hl[h].push(e);
+  });
+  st._p = {ev:ev, hl:hl, len:st.len || end + 3, ids:seen};
+  return st._p;
+}
+function describe(e) {
+  const o = C[e.id], nm = o ? (o.c || o.name) : '';
+  if (e.ty === 'press') return (e.shift ? 'SHIFT + ' : 'Press ') + (o && o.pad ? 'D' + o.dk + ' pad ' + o.pad : nm);
+  if (e.ty === 'hold') return 'Hold ' + (o && o.pad ? 'D' + o.dk + ' pad ' + o.pad : nm);
+  if (e.ty === 'nudge') return (e.amt > 0 ? 'Push jog ' + e.n + ' forwards' : 'Drag jog ' + e.n + ' back');
+  if (e.ty === 'scrub') return 'Turn jog ' + e.n + ' to the first kick';
+  if (e.ty === 'touch') return e.id === 'browse' ? 'Turn the rotary selector' : nm;
+  if (e.ty === 'move' && o) {
+    const v = e.to, from = sim.pos[e.id];
+    if (o.t === 'knob') return 'Turn ' + nm + (v <= .03 ? ' fully left' : v >= .97 ? ' fully right' : Math.abs(v - .5) < .02 ? ' to 12 o’clock' : v < from ? ' left' : ' right');
+    if (o.t === 'vfade') return (v > from ? 'Raise ' : 'Lower ') + nm;
+    if (o.t === 'hfade') return v < .25 ? 'Crossfader to deck 1' : v > .75 ? 'Crossfader to deck 2' : 'Crossfader to centre';
+    if (o.t === 'vslide') return nm + (Math.abs(v - .5) < .01 ? ' back to centre' : v > from ? ': faster' : ': slower');
+    if (o.t === 'sw3') return 'CH SELECT to ' + ['1', '2', '1&2'][Math.round(v * 2)];
+  }
+  return nm;
+}
+const Demo = {on:false, done:false, t0:0, spb:.5, ev:[], hl:[[], []], i:0, tw:[], len:0};
+let paused = false, unlocked = false, trying = false;
+function fire(e, t) {
+  const cap = s => later(t, () => { capA.textContent = s; });
+  switch (e.ty) {
+    case 'press': cap(describe(e)); press(e.id, t, false, e.shift); later(t, () => flash(e.id)); break;
+    case 'holdvis': sim.lit[e.id] = 1; later(t, paint); later(t + e.dur * Demo.spb, () => { delete sim.lit[e.id]; paint(); }); break;
+    case 'move': cap(describe(e)); Demo.tw.push({e:e, from:null}); break;
+    case 'hold': cap(describe(e)); holdOn(e.id, t); break;
+    case 'holdEnd': holdOff(e.id, t); break;
+    case 'nudge': cap(describe(e)); AE.nudge(e.n, t, e.amt / e.dur); break;
+    case 'nudgeEnd': AE.nudge(e.n, t, 0); break;
+    case 'load': cap('Load ' + (e.spec.label || 'Track ' + e.spec.track) + ' to deck ' + e.n); later(t, () => { deckSpec(e.n, e.spec); setPos('d' + e.n + '-tempo', sim.pos['d' + e.n + '-tempo']); flash(e.id); paint(); dirty = true; }); break;
+    case 'touch': cap(describe(e)); break;
+    case 'scrub': cap(describe(e)); Demo.tw.push({e:e, from:null}); break;
+    case 'say': later(t, () => { capS.textContent = e.a; }); break;
+    case 'listen': later(t, () => { sim.listen = e.a; paint(); dirty = true; }); break;
+    case 'do': doFn(e.a, e.b, t, false); break;
+    case 'skip': cap('Skipping ahead in the track'); AE.jump(e.a, t, e.b); break;
+  }
+}
+function tweens(tb) {
+  for (let i = Demo.tw.length - 1; i >= 0; i--) {
+    const w = Demo.tw[i], e = w.e, u = (tb - e.at) / e.dur; if (u < 0) continue;
+    if (e.ty === 'scrub') { if (w.from === null) w.from = AE.pos(e.n); AE.setPos(e.n, w.from + (e.to - w.from) * Math.min(1, u)); }
+    else { if (w.from === null) w.from = sim.pos[e.id]; setCtl(e.id, w.from + (e.to - w.from) * Math.min(1, u)); }
+    if (u >= 1) Demo.tw.splice(i, 1);
+  }
+}
+const setAim = (h, d) => { const a = aimEl[h]; if (a._d !== d) { a._d = d; a.setAttribute('d', d); } };
+const hideHands = () => handEl.forEach((g, h) => { g.style.opacity = 0; setAim(h, ''); });
+/* an arrow from where a control is to where the hand is taking it */
+function aimPath(e) {
+  const o = C[e.id], v = sim.pos[e.id], to = e.to; if (!o || Math.abs(to - v) < .03 || o.t === 'sw3') return '';
+  const f = n => n.toFixed(1);
+  if (o.t === 'knob') {
+    const R = o.r + 12, a0 = (-150 + v * 300) * Math.PI / 180, a1 = (-150 + to * 300) * Math.PI / 180, dir = to > v ? 1 : -1, ah = a1 - dir * 7 / R;
+    const pt = (a, r) => f(o.x + Math.sin(a) * r) + ' ' + f(o.y - Math.cos(a) * r);
+    return 'M' + pt(a0, R) + 'A' + R + ' ' + R + ' 0 ' + (Math.abs(a1 - a0) > Math.PI ? 1 : 0) + ' ' + (dir > 0 ? 1 : 0) + ' ' + pt(a1, R) + 'M' + pt(ah, R - 5) + 'L' + pt(a1, R) + 'L' + pt(ah, R + 5);
+  }
+  const a = ptOf(e.id, v), b = ptOf(e.id, to), hz = o.t === 'hfade', ox = hz ? 0 : (o.t === 'vslide' ? -31 : 31), oy = hz ? -29 : 0;
+  const len = dist(a, b), ux = (b[0] - a[0]) / len, uy = (b[1] - a[1]) / len, bx = b[0] + ox, by = b[1] + oy;
+  return 'M' + f(a[0] + ox) + ' ' + f(a[1] + oy) + 'L' + f(bx) + ' ' + f(by) + 'M' + f(bx - ux * 7 - uy * 5) + ' ' + f(by - uy * 7 + ux * 5) + 'L' + f(bx) + ' ' + f(by) + 'L' + f(bx - ux * 7 + uy * 5) + ' ' + f(by - uy * 7 - ux * 5);
+}
+function hands(tb) {
+  for (let h = 0; h < 2; h++) {
+    const g = handEl[h], list = Demo.hl[h]; let curE = null, nextE = null, prevE = null, x = 0, y = 0, op = 0, down = false, aim = '';
+    for (let i = 0; i < list.length; i++) { const e = list[i]; if (tb >= e.at && tb < e.at + e.dur) { curE = e; break; } if (e.at > tb) { nextE = e; break; } prevE = e; }
+    if (curE) { const p = livePt(curE, tb); x = p[0]; y = p[1]; op = 1; down = (curE.ty === 'press' || curE.ty === 'load') ? tb - curE.at < .3 : curE.ty !== 'touch'; if (curE.ty === 'move') aim = aimPath(curE); }
+    else if (nextE && tb >= nextE.tr0) {
+      const a = nextE.prev ? livePt(nextE.prev, nextE.prev.at + nextE.prev.dur) : HOME[h], b = livePt(nextE, nextE.at);
+      let u = clamp((tb - nextE.tr0) / Math.max(.001, nextE.at - nextE.tr0), 0, 1); u = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+      x = a[0] + (b[0] - a[0]) * u; y = a[1] + (b[1] - a[1]) * u; op = 1;
+    }
+    else if (prevE) { const idle = tb - (prevE.at + prevE.dur); if (idle < 1) { const p = livePt(prevE, prevE.at + prevE.dur); x = p[0]; y = p[1]; op = 1 - idle; } }
+    setAim(h, aim);
+    if (op <= 0) { g.style.opacity = 0; continue; }
+    g.style.opacity = op.toFixed(2); g.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')'); g.classList.toggle('down', down);
+  }
+}
+
+/* ---------- step state: rebuild the panel as it stands when a step begins ---------- */
+function ffwd(st) {
+  const P = prep(st), ref = st.bpm || AE.bpm(1) || AE.bpm(2) || 124; let last = 0;
+  P.ev.forEach(e => {
+    const db = e.at - last; last = e.at;
+    if (db > 0) [1, 2].forEach(n => AE.advance(n, db * (AE.bpm(n) || ref) / ref));
+    const t = AE.now();
+    if (e.ty === 'press') press(e.id, t, true, e.shift);
+    else if (e.ty === 'move') { sim.pos[e.id] = e.to; const m = /^d([12])-tempo$/.exec(e.id); if (m) AE.D[+m[1]].tempoV = e.to; }
+    else if (e.ty === 'load') deckSpec(e.n, e.spec);
+    else if (e.ty === 'listen') sim.listen = e.a;
+    else if (e.ty === 'do') doFn(e.a, e.b, t, true);
+    else if (e.ty === 'skip') AE.jump(e.a, t, e.b);
+    else if (e.ty === 'scrub') AE.setPos(e.n, e.to);
+  });
+}
+function applyPre(st) {
+  const p = st.pre; if (!p) return;
+  if ('d1' in p) deckSpec(1, p.d1);
+  if ('d2' in p) deckSpec(2, p.d2);
+  if (p.set) { Object.assign(sim.pos, p.set); [1, 2].forEach(n => { AE.D[n].tempoV = sim.pos['d' + n + '-tempo']; }); }
+  if (p.lit) Object.keys(p.lit).forEach(k => { if (p.lit[k]) sim.lit[k] = p.lit[k]; else delete sim.lit[k]; });
+  if (p.listen) sim.listen = p.listen;
+}
+function fold(s, k) {
+  const ses = S[s]; AE.halt();
+  sim.pos = Object.assign({}, BASE, ses.init || {}); sim.lit = {}; sim.listen = 'room'; sim.smartF = false; sim.padfx = 0; fxIdx = 2; sim.fxBeats = 1;
+  AE.setDeck(1, null); AE.setDeck(2, null); AE.smart(0);
+  for (let i = 0; i < k; i++) { applyPre(ses.steps[i]); ffwd(ses.steps[i]); }
+  applyPre(ses.steps[k]);
+  paintPos(); paint(); dirty = true; armPickup();
+}
+const mW = $('#mWatch'), mT = $('#mTry'), mD = $('#mDrill');
+function uiPlayer() {
+  const st = S[si].steps[ki], has = !!st.demo;
+  pp.dataset.s = trying ? 'reset' : !has ? 'none' : Demo.on ? (paused ? 'play' : 'pause') : Demo.done ? 'replay' : 'play';
+  pp.disabled = !has && !trying;
+  pp.setAttribute('aria-label', trying ? (Dr.on ? 'Start the drill over' : 'Reset the panel') : !has ? 'No demo for this step' : Demo.on ? (paused ? 'Resume' : 'Pause') : Demo.done ? 'Replay demo' : 'Play demo');
+  bigplay.hidden = !(has && !Demo.on && !Demo.done && !trying && mode === 'watch');
+  mW.setAttribute('aria-pressed', String(mode === 'watch')); mT.setAttribute('aria-pressed', String(mode === 'try')); mD.setAttribute('aria-pressed', String(mode === 'drill'));
+  mD.disabled = !hasDrill(st) && !st.pass;
+  if (!Demo.on && !Demo.done) progEl.style.width = '0%';
+}
+function startDemo() {
+  const st = S[si].steps[ki]; if (!st.demo) return;
+  AE.ensure().then(run => {
+    if (!run && AE.hasAudio()) { uiPlayer(); return; }
+    gen++; paused = false; fold(si, ki);
+    const P = prep(st); capA.textContent = ''; capS.textContent = '';
+    Demo.ev = P.ev; Demo.hl = P.hl; Demo.len = P.len; Demo.i = 0; Demo.tw = [];
+    Demo.spb = 60 / (st.bpm || AE.bpm(1) || AE.bpm(2) || 124);
+    AE.refresh(sim); dirty = true;
+    Demo.t0 = AE.now() + .3; AE.begin(Demo.t0); Demo.on = true; Demo.done = false; unlocked = true; uiPlayer();
+  });
+}
+function stopDemo() {
+  AE.halt(); Demo.on = false; Demo.done = false; gen++; hideHands();
+  if (paused) { paused = false; AE.resume(); }
+  if (trying) endTry();
+}
+function finishDemo() { Demo.on = false; Demo.done = true; AE.halt(); hideHands(); progEl.style.width = '100%'; capA.textContent = 'Your turn'; capS.textContent = hasDrill(S[si].steps[ki]) ? 'Press Drill and do it yourself. Every move gets checked.' : 'Switch to Try it and do it yourself.'; uiPlayer(); }
+function togglePause() { if (!Demo.on) return; paused = !paused; if (paused) AE.pause(); else AE.resume(); uiPlayer(); }
+function playerTick() {
+  if (!Demo.on || paused) return;
+  const tb = (AE.now() - Demo.t0) / Demo.spb, tl = tb + LEAD / Demo.spb;
+  while (Demo.i < Demo.ev.length && Demo.ev[Demo.i].at <= tl) { const e = Demo.ev[Demo.i++]; fire(e, Demo.t0 + e.at * Demo.spb); }
+  tweens(tb); hands(tb);
+  progEl.style.width = (clamp(tb / Demo.len, 0, 1) * 100).toFixed(1) + '%';
+  if (tb >= Demo.len) finishDemo();
+}
+
+/* ---------- the course. Each step can carry a demo: [beat, action, ...] lines the two hands perform in time ---------- */
+const S = [{"id":"start","nm":"Start here","steps":[{"t":"How this works","pre":{"d1":{"track":"A","at":160,"play":true},"d2":null,"set":{"fader1":1}},"demo":[[0,"say","Watch, listen, then copy it."],[6,"move","cfx1",0.14,3],[10,"move","cfx1",0.5,2],[14,"move","low1",0,1],[18,"move","low1",0.5,1]],"len":22,"b":"<p>Watch the hands. Hear the result. Then do it yourself.</p><p><b>Try it</b> lets you work the panel freely. <b>Drill</b> turns the step into an assignment and checks every move.</p><p>Plug in your FLX4 and press <b>Connect FLX4</b> at the top (Chrome or Edge) to drill on the real controller.</p>"},{"t":"Four questions","b":"<p>Every mix answers four questions.</p><ul><li><b>When?</b> The beat where a track enters.</li><li><b>How fast?</b> Both tracks at one tempo.</li><li><b>How loud?</b> What the room hears of each.</li><li><b>Why this track?</b> Key, energy, style.</li></ul><p>Mix sounds wrong? Find the question you missed.</p>"},{"t":"Two decks","hl":["z-deck1","z-deck2"],"pre":{"d1":{"track":"A","at":64,"play":false},"d2":{"track":"B","at":32,"play":false,"sync":true},"set":{"fader1":1,"fader2":1}},"demo":[[1,"press","d1-play"],[1,"say","Deck 1 plays one track."],[9,"press","d1-play"],[9,"press","d2-play"],[9,"say","Deck 2 plays another. Same controls."],[17,"press","d2-play"]],"len":20,"b":"<p>A deck plays one track. It starts it, stops it, sets its speed and jumps around in it.</p><p>Deck 1 left, deck 2 right. Same controls.</p>"},{"t":"The mixer","hl":["z-mixer"],"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"set":{"fader1":1,"fader2":1,"xfader":0}},"demo":[[0,"say","Left: only deck 1."],[4,"move","xfader",1,6],[11,"say","Right: only deck 2."],[15,"move","xfader",0,6],[23,"move","xfader",0.5,2]],"len":27,"b":"<p>The mixer decides what the room hears. Each deck gets a strip: level, EQ, filter, fader.</p><p>The crossfader blends the two.</p>"},{"t":"Browse and load","pre":{"d1":null,"d2":null,"set":{"fader1":0,"fader2":0,"xfader":0.5}},"demo":[[1,"load",1,{"track":"A"}],[5,"load",2,{"track":"B"}]],"len":10,"b":"<p>Turn the rotary selector to scroll your library. [[LOAD]] puts the track on that deck.</p>"},{"t":"Effects","hl":["z-fx","cfx1","cfx2","smartcfx"],"pre":{"d1":{"track":"A","at":160,"play":true},"d2":null,"set":{"fader1":1}},"demo":[[0,"say","CFX: a filter on one knob."],[2,"move","cfx1",0.88,3],[6,"move","cfx1",0.5,1],[8,"say","BEAT FX: an echo, in time."],[11,"press","fx-onoff"],[15,"press","fx-onoff"]],"len":20,"b":"<p>[[CFX]] is a filter on one knob. [[BEAT FX]] adds an effect in time with the track.</p><p>More in session 7.</p>"},{"t":"Headphones","pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"set":{"fader1":1,"fader2":0,"hpmix":0.5,"hplevel":0.5},"listen":"room"},"demo":[[0,"say","The room hears deck 1 only."],[4,"press","hcue2"],[6,"listen","phones"],[6,"say","Headphones: deck 2 is in there too."],[11,"move","hpmix",0,3],[14,"say","CUE side: deck 2 alone."],[19,"move","hpmix",1,3],[22,"say","MASTER side: what the room hears."],[27,"move","hpmix",0.5,2],[30,"listen","room"]],"len":33,"b":"<p>[[CUE]] sends a channel to your headphones, even with its fader down. [[HEADPHONES MIX]] balances that against the room.</p><p>The <b>Room / Headphones</b> switch shows which one you are listening to.</p>"},{"t":"SHIFT","pre":{"d1":{"track":"A","at":0,"play":false},"d2":null,"lit":{"hcue2":0}},"demo":[[1,"combo","d1-shift","d1-sync"],[1,"say","SHIFT + BEAT SYNC changes the tempo range."]],"len":6,"b":"<p>Most controls have a second job, printed small beneath them. Hold [[SHIFT]] to use it.</p>"},{"t":"Set up","pre":{"d1":null,"d2":null},"b":"<ul class=\"todo\"><li>Install rekordbox from rekordbox.com, then plug in. The Free plan is enough.</li><li>USB-C cable to the rear data port. The other port is power only.</li><li>Headphones in the front 3.5 mm jack, 32 ohms or more.</li><li>Speakers to the rear MASTER outputs. None? rekordbox plays through your computer.</li><li>Switch rekordbox to PERFORMANCE mode.</li><li>Preferences &gt; Audio: Master is DDJ-FLX4 : MASTER, Headphones is DDJ-FLX4 : PHONES.</li><li>Make a 20-track Practice playlist, five per style.</li><li>Turn Quantize on: Q on each deck.</li></ul>"},{"t":"Use files you own","b":"<p>Streaming tracks load fine, but rekordbox will not record them.</p><p>Sessions 5 and 10 need recording.</p>"}],"sub":"The controller in ten steps"},{"id":"s1","nm":"Signal path","init":{"trim1":0,"trim2":0,"master":0,"hplevel":0},"steps":[{"t":"The signal path","pre":{"d1":null,"d2":null},"demo":[[1,"touch","trim1"],[2.5,"touch","hi1"],[3.5,"touch","mid1"],[4.5,"touch","low1"],[5.5,"touch","cfx1"],[7,"touch","fader1",1],[8.5,"touch","xfader",1],[10,"touch","master",1]],"len":13,"b":"<p>Sound runs down the strip: [[TRIM]], [[EQ]], [[CFX]], fader.</p><p>Both channels meet at the crossfader and leave through [[MASTER LEVEL]].</p>"},{"t":"Start from neutral","pre":{"set":{"trim1":0.7,"trim2":0.45,"master":0.7,"low2":0.2,"cfx1":0.8,"fader1":0.6,"xfader":0.2,"hi1":0.75}},"demo":[[1,"move","trim1",0,1],[1,"move","trim2",0,1],[3,"move","master",0,1],[4.5,"move","hi1",0.5,0.7],[4.5,"move","low2",0.5,0.7],[6,"move","cfx1",0.5,0.7],[7.5,"move","fader1",0,0.8],[9,"move","xfader",0.5,0.8]],"len":12,"b":"<p>[[TRIM]] and [[MASTER LEVEL]] fully left. [[EQ]] and [[CFX]] at 12 o’clock. Faders down, crossfader centred.</p><p>Start every session here.</p>"},{"t":"Load deck 1","pre":{"d1":null,"d2":null},"demo":[[1,"load",1,{"track":"A","at":64}]],"len":6,"b":"<p>Pick a track and press the left [[LOAD]].</p>"},{"t":"Play, then set TRIM","pre":{"d1":{"track":"A","at":64,"play":false},"d2":null},"demo":[[1,"press","d1-play"],[3,"move","trim1",0.6,6],[4,"say","Silent. Watch the indicator climb to orange."]],"len":13,"b":"<p>Press [[PLAY/PAUSE]]. Raise [[TRIM]] until the level indicator just touches orange.</p><p>No sound yet. The indicator reads before the fader.</p>"},{"t":"Fader up, then master","pre":{"d1":{"track":"A","at":64,"play":true},"d2":null},"demo":[[1,"move","fader1",1,3],[5,"move","master",0.5,4],[6,"say","Sound arrives with MASTER LEVEL."]],"len":14,"b":"<p>Channel fader to the top. Then raise [[MASTER LEVEL]] to a comfortable volume.</p><p>Room volume is MASTER LEVEL’s job. TRIM only matches tracks.</p>"},{"t":"Second track, fader down","pre":{"d1":{"track":"A","at":96,"play":true},"d2":null},"demo":[[1,"load",2,{"track":"B","at":32,"sync":true}],[5,"press","d2-play"],[6,"say","Deck 2 is running. The room hears only deck 1."]],"len":12,"b":"<p>Load deck 2 and press [[PLAY/PAUSE]]. Keep its fader down.</p>"},{"t":"Cue deck 2","pre":{"d1":{"track":"A","at":96,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"listen":"room"},"demo":[[1,"press","hcue2"],[3,"listen","phones"],[3,"move","hplevel",0.5,3],[4,"say","Headphones: deck 2 fades in."]],"len":13,"b":"<p>Press channel 2 [[CUE]] and raise [[HEADPHONES LEVEL]].</p><p>Deck 2 is in your ears, not in the room.</p>"},{"t":"Sweep the mix","pre":{"d1":{"track":"A","at":96,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"lit":{"hcue2":1},"set":{"hpmix":0.5,"hplevel":0.5},"listen":"phones"},"demo":[[1,"move","hpmix",0,3],[4,"say","CUE: deck 2 alone."],[9,"move","hpmix",1,3],[12,"say","MASTER: what the room hears."],[17,"move","hpmix",0.5,2],[19,"say","Middle: both. Your default."]],"len":23,"b":"<p>[[HEADPHONES MIX]] left: deck 2 alone. Right: the room.</p><p>Park it in the middle.</p>"},{"t":"Match the levels","pre":{"d1":{"track":"A","at":96,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"lit":{"hcue2":1},"set":{"trim2":0.3,"hpmix":0,"hplevel":0.5},"listen":"phones"},"demo":[[0,"say","Deck 2 alone, and too quiet."],[2,"move","trim2",0.6,5],[8,"say","Now it peaks level with deck 1."]],"len":13,"b":"<p>Set deck 2’s [[TRIM]] so it peaks level with deck 1.</p><p>Repeat with five tracks. Quiet recordings need more.</p>"},{"t":"What each EQ removes","pre":{"d1":{"track":"A","at":160,"play":true},"d2":null,"lit":{"hcue2":0},"set":{"hpmix":0.5},"listen":"room"},"demo":[[1,"move","low1",0,1.5],[2,"say","LOW out: kick and bass go."],[6,"move","low1",0.5,1.5],[9,"move","mid1",0,1.5],[10,"say","MID out: chords and lead go."],[14,"move","mid1",0.5,1.5],[17,"move","hi1",0,1.5],[18,"say","HI out: hi-hats go."],[22,"move","hi1",0.5,1.5]],"len":26,"b":"<ul><li>[[LOW]] takes the kick and bass.</li><li>[[MID]] takes vocals and melody.</li><li>[[HI]] takes the hi-hats.</li></ul><p>Turn each fully left and back. Say what vanished.</p>"},{"t":"The filter","pre":{"d1":{"track":"A","at":160,"play":true},"d2":null},"demo":[[1,"move","cfx1",0.08,4],[2,"say","Left: muffled."],[6,"move","cfx1",0.5,2],[9,"move","cfx1",0.92,4],[10,"say","Right: thin."],[14,"move","cfx1",0.5,2]],"len":18,"b":"<p>Sweep [[CFX]] left, right, then back to centre.</p><p>Left cuts highs. Right cuts lows.</p>"},{"t":"Pass check","pass":1,"b":"<p>One track in the room. Cue a second in your headphones and match its level in 30 seconds.</p>"}],"sub":"Gain, EQ and headphones"},{"id":"s2","nm":"Phrases","init":{"fader1":1},"steps":[{"t":"Beats, bars, phrases","pre":{"d1":{"track":"A","at":28,"play":true},"d2":null},"demo":[[0,"say","Count: 8-2-3-4…"],[4,"say","The one. Claps and hats enter."],[32,"say","8-2-3-4…"],[36,"say","The one. The bass enters."]],"len":44,"b":"<p>4 beats make a bar. 8 bars make a phrase. Music changes on the first beat of a phrase: <b>the one</b>.</p><p>On the strip, tall blocks start a bar and the white block is the one.</p>"},{"t":"Count out loud","pre":{"d1":{"track":"A","at":0,"play":false},"d2":null},"demo":[[1,"press","d1-play"],[1,"say","Bar 1 of 8. Follow the numbers."],[29,"say","8-2-3-4…"],[33,"say","The one. Something new arrives."]],"len":40,"b":"<p>Count bars: 1-2-3-4, 2-2-3-4, up to 8. The next beat is the one.</p><p>At each one, name what changed.</p>"},{"t":"Other styles","pre":{"d1":{"track":"C","at":12,"play":true},"d2":null},"demo":[[0,"say","Hip-hop, 95 BPM. A change every 4 bars."],[4,"say","Bass and keys come in."],[20,"say","And again."]],"len":28,"b":"<p>Hip-hop, pop and afrobeats often change every 4 bars, not 8.</p><p>Count one of each.</p>"},{"t":"Check the grid","pre":{"d1":{"track":"A","at":0,"play":false},"d2":null},"demo":[[1,"combo","d1-shift","browse"],[1,"say","SHIFT + rotary selector zooms the waveform."]],"len":6,"b":"<p>[[SHIFT]] + rotary selector zooms the waveform. Grid lines should sit on the kicks.</p><p>Fix a bad grid in rekordbox. Sync depends on it.</p>"},{"t":"Pads to hot cues","pre":{"d1":{"track":"A","at":0,"play":false,"mode":"beatjump"},"d2":null},"demo":[[1,"press","d1-mode-hotcue"]],"len":5,"b":"<p>Press [[HOT CUE]]. The pads now store points in the track.</p>"},{"t":"Mark four points","pre":{"d1":{"track":"A","at":0,"play":false},"d2":null},"demo":[[1,"press","d1-pad1"],[1,"say","Pad 1: the first beat."],[3,"press","d1-play"],[5,"skip",1,62],[7,"press","d1-pad2"],[7,"say","Pad 2: the bass enters."],[9,"skip",1,158],[11,"press","d1-pad3"],[11,"say","Pad 3: the drop."],[13,"skip",1,222],[15,"press","d1-pad4"],[15,"say","Pad 4: the outro."]],"len":20,"b":"<ul><li><b>Pad 1</b> the first beat</li><li><b>Pad 2</b> the bass enters</li><li><b>Pad 3</b> the drop</li><li><b>Pad 4</b> the outro</li></ul><p>[[SHIFT]] + pad clears one. Do five tracks.</p>"},{"t":"Test your marks","pre":{"d1":{"track":"A","at":100,"play":true,"hot":{"1":0,"2":64,"3":160,"4":224}},"d2":null},"demo":[[4,"press","d1-pad3"],[4,"say","Pad 3: the drop."],[12,"press","d1-pad4"],[12,"say","Pad 4: the outro."],[20,"press","d1-pad2"],[20,"say","Pad 2: the bass."]],"len":28,"b":"<p>Play and press each pad. Each should land on a one.</p>"},{"t":"Read the waveform","b":"<p>Find the same points by shape. Thin is an intro or breakdown. Dense is a drop.</p>"},{"t":"Pass check","pass":1,"b":"<p>A track you have not prepared, eyes off the screen. Call every phrase change one beat early, for two minutes.</p>"}],"sub":"Hear where music changes"},{"id":"s3","nm":"On the one","init":{"fader1":1},"steps":[{"t":"Why the one matters","lock":1,"pre":{"d1":{"track":"A","at":60,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":false},"set":{"fader2":1},"listen":"room"},"demo":[[0,"say","Deck 2: a copy, cued at its first beat."],[4,"press","d2-play"],[5,"say","Started on the one. They change together."]],"len":16,"b":"<p>Start B on A’s one and both tracks change together for the whole mix.</p><p>This session drills timing only: two copies of one track, so tempo is not a problem.</p>"},{"t":"Set the cue point","pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":3.4,"play":false},"set":{"fader2":0}},"demo":[[1,"scrub",2,0,3],[5,"press","d2-cue"],[5,"say","That is now the cue point."]],"len":9,"b":"<p>Turn the jog top until the playhead sits on the first kick. Press [[CUE]].</p>"},{"t":"Rehearse with CUE","pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":false},"set":{"hpmix":0.5,"hplevel":0.5},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Headphones. Hold CUE for one beat."],[4,"hold","d2-cue",1],[8,"hold","d2-cue",1],[12,"hold","d2-cue",1],[16,"hold","d2-cue",1]],"len":20,"b":"<p>Hold [[CUE]] for a beat, in time with deck 1. Held, it plays. Released, it snaps back.</p><p>Repeat until two kicks sound like one.</p>"},{"t":"Play on the one","lock":1,"pre":{"d1":{"track":"A","at":60,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":false},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Count: 8-2-3-4…"],[4,"press","d2-play"],[5,"say","One clean kick. On time."]],"len":14,"b":"<p>Count the phrase. On the one, press [[PLAY/PAUSE]].</p><p>One clean kick: on time. A double hit: early or late.</p>"},{"t":"Reset, repeat","lock":1,"pre":{"d1":{"track":"A","at":60,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":false},"lit":{"hcue2":1},"listen":"phones"},"demo":[[4,"press","d2-play"],[10,"press","d2-cue"],[10,"say","CUE jumps back. Wait for the next one."],[32,"say","8-2-3-4…"],[36,"press","d2-play"]],"len":42,"b":"<p>[[CUE]] jumps back and stops. Do 20 starts. Count the clean ones.</p>"},{"t":"A late start","lock":1,"pre":{"d1":{"track":"A","at":60,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":false},"lit":{"hcue2":1},"listen":"phones"},"demo":[[4.22,"press","d2-play"],[5,"say","Late. Hear the double kick."]],"len":14,"b":"<p>Deck 2 started late. Its beats trail.</p><p>Fix it on the jog edge: push forwards to catch up, drag back to slow down.</p>"},{"t":"Nudge it in","lock":1,"pre":{"d1":{"track":"A","at":68,"play":true},"d2":{"track":"A","label":"A (copy)","at":3.78,"play":true},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Deck 2 is trailing."],[4,"nudge",2,0.22,4],[9,"say","Locked."]],"len":16,"b":"<p>A short push and the beats line up. Nobody hears it.</p>"},{"t":"Two different tracks","lock":1,"pre":{"d1":{"track":"A","at":56,"play":true},"d2":{"track":"B","at":0,"hot":{"1":0}},"set":{"fader2":1},"lit":{"hcue2":0},"listen":"room"},"demo":[[1,"press","d2-sync"],[1,"say","BEAT SYNC matches the tempo."],[8,"press","d2-pad1"],[8,"say","Pad 1, on the one."]],"len":20,"b":"<p>Press [[BEAT SYNC]] on the new deck so tempo is handled. Start it from pad 1 on the one.</p>"},{"t":"Pass check","pass":1,"b":"<p>Nine clean starts out of ten, with both tracks changing phrase on the same beat.</p>"}],"sub":"Start a track in time"},{"id":"s4","nm":"Beatmatching","init":{"fader1":1},"steps":[{"t":"Two jobs","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":true},"set":{"hpmix":0.5,"hplevel":0.5},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Both decks in the headphones, locked."],[3,"touch","d2-tempo",1.5],[3,"say","TEMPO: equal speeds."],[7,"touch","d2-jog-edge",1.5],[7,"say","Jog edge: beats lined up."]],"len":12,"b":"<p>[[TEMPO]] makes the speeds equal. The jog edge lines the beats up.</p><p>This is the hard one. Expect to repeat it.</p>"},{"t":"The TEMPO slider","pre":{"d1":{"track":"A","at":64,"play":false},"d2":{"track":"A","label":"A (copy)","at":64,"play":true},"set":{"hpmix":0},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Deck 2 alone."],[2,"move","d2-tempo",0.95,3],[3,"say","Towards you: faster."],[8,"move","d2-tempo",0.05,4],[9,"say","Away: slower."],[14,"move","d2-tempo",0.5,2],[18,"combo","d2-shift","d2-sync"],[18,"say","SHIFT + BEAT SYNC steps the range."]],"len":23,"b":"<p>Towards you is faster. Away is slower.</p><p>[[SHIFT]] + [[BEAT SYNC]] changes the range: ±6, ±10, ±16%, WIDE. Smaller is finer.</p>"},{"t":"Knock it out","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0,"play":true},"set":{"hpmix":0.5},"lit":{"hcue2":1},"listen":"phones"},"demo":[[2,"move","d2-tempo",0.63,1],[4,"say","The kicks start to separate."]],"len":18,"b":"<p>Same track on both decks. Move deck 2’s slider a little and look away.</p>"},{"t":"Fast or slow?","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0.05,"play":true,"tempoV":0.63},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Fast or slow? Say it."],[6,"nudge",2,0.12,2],[8,"say","Pushing made it worse. Deck 2 is fast."]],"len":16,"b":"<p>Say it out loud before you touch anything.</p><p>Not sure? Nudge forwards. Better means it was behind. Worse means it was ahead.</p>"},{"t":"Slow it, then nudge","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0.2,"play":true,"tempoV":0.63},"lit":{"hcue2":1},"listen":"phones"},"demo":[[1,"move","d2-tempo",0.53,1],[3,"nudge",2,-0.22,3],[7,"say","Closer. Still drifting, slowly."]],"len":20,"b":"<p>Ease the slider back. Drag the jog edge to line up. Listen again.</p><p>Each round the correction gets smaller.</p>"},{"t":"Locked","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"A","label":"A (copy)","at":0.06,"play":true,"tempoV":0.53},"lit":{"hcue2":1},"listen":"phones"},"demo":[[1,"move","d2-tempo",0.5,1],[3,"nudge",2,-0.07,2],[6,"say","Hands off. Still together."]],"len":22,"b":"<p>Kicks stay together after you let go: the tempos match.</p><p>Do it ten times.</p>"},{"t":"Now hide the BPM","lock":1,"hideBpm":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":0,"play":true},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Track B is faster. BPM hidden."],[2,"move","d2-tempo",0.368,4],[7,"nudge",2,-0.064,3],[11,"say","Matched by ear."]],"len":26,"b":"<p>Two house tracks within 3 BPM. Cover the readouts. Match by ear.</p><p>Aim for 30 seconds locked, then 60.</p>"},{"t":"Check yourself","b":"<p>Uncover the BPM. Within 0.1 is a good match.</p>"},{"t":"What BEAT SYNC does","lock":1,"pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":0.4,"play":true},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Out of time, different tempo."],[6,"press","d2-sync"],[7,"say","One press. Matched and snapped."]],"len":16,"b":"<p>One press does both jobs: tempo matched, beats snapped.</p><p>It is only as good as your grids. The manual method saves you when one is wrong.</p>"},{"t":"Pass check","pass":1,"b":"<p>Two different tracks, BPM hidden. Locked for 60 seconds within two minutes of loading.</p>"}],"sub":"Match two tempos by ear"},{"id":"s5","nm":"The blend","init":{"fader1":1},"steps":[{"t":"One track owns the bass","pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"set":{"fader2":0,"low2":0.5},"listen":"room"},"demo":[[2,"move","fader2",1,2],[4,"say","Two basslines: muddy and loud."],[12,"move","low2",0,0.5],[13,"say","Cut one LOW. Clear."]],"len":22,"b":"<p>Two basslines at once sound muddy. Only one track gets the low end.</p><p>Bring B in without bass, swap on a phrase, take A out.</p>"},{"t":"1. Cue B, bass off","pre":{"d1":{"track":"A","at":200,"play":true},"d2":{"track":"B","at":4},"set":{"fader2":0,"low2":0.5}},"demo":[[1,"press","d2-sync"],[3,"press","hcue2"],[5,"scrub",2,0,1.5],[7,"press","d2-cue"],[9,"move","low2",0,1.5]],"len":13,"b":"<p>[[BEAT SYNC]] on. Cue B at its first beat. B’s [[LOW]] fully left, fader down.</p>"},{"t":"2. Start B on the one","lock":1,"pre":{"d1":{"track":"A","at":216,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"low2":0,"fader2":0},"lit":{"hcue2":1}},"demo":[[0,"say","A’s outro is two bars away. Count it in."],[8,"press","d2-play"],[9,"say","B is running. The room hears nothing new."]],"len":16,"b":"<p>On a one in A, ideally the start of its outro, press [[PLAY/PAUSE]] on B.</p>"},{"t":"3. Raise B","lock":1,"pre":{"d1":{"track":"A","at":224,"play":true},"d2":{"track":"B","at":0,"play":true,"sync":true},"set":{"low2":0,"fader2":0},"lit":{"hcue2":1}},"demo":[[1,"move","fader2",1,30],[4,"say","B’s hats arrive over A’s bass."]],"len":34,"b":"<p>B’s fader to the top, over 8 bars.</p>"},{"t":"4. Swap the bass","lock":1,"pre":{"d1":{"track":"A","at":248,"play":true},"d2":{"track":"B","at":24,"play":true,"sync":true},"set":{"low2":0,"fader2":1}},"demo":[[0,"say","Two bars to the one…"],[8,"move","low1",0,0.25],[8,"move","low2",0.5,0.25],[9,"say","Swapped. The bass is B’s now."]],"len":20,"b":"<p>On the one: A’s [[LOW]] out, B’s [[LOW]] back to 12 o’clock. Same moment, both hands.</p>"},{"t":"5. Take A out","lock":1,"pre":{"d1":{"track":"A","at":0,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"set":{"low1":0,"low2":0.5,"fader1":1,"fader2":1}},"demo":[[1,"move","fader1",0,30]],"len":34,"b":"<p>A’s fader down, over 8 bars.</p>"},{"t":"Reset A","pre":{"d1":{"track":"A","at":32,"play":true},"d2":{"track":"B","at":64,"play":true,"sync":true},"set":{"fader1":0,"low1":0,"fader2":1,"low2":0.5}},"demo":[[1,"move","low1",0.5,1],[3,"press","d1-play"]],"len":8,"b":"<p>A’s [[LOW]] back to 12 o’clock and stop the deck. Ready for the next track.</p>"},{"t":"The whole blend","lock":1,"pre":{"d1":{"track":"A","at":216,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low1":0.5,"low2":0},"lit":{"hcue2":1}},"demo":[[0,"say","One take."],[8,"press","d2-play"],[8,"say","Start B on the one."],[9,"move","fader2",1,30],[12,"say","Raise B over 8 bars."],[40,"move","low1",0,0.25],[40,"move","low2",0.5,0.25],[40,"say","Swap the bass on the one."],[41,"move","fader1",0,30],[44,"say","Take A out over 8 bars."],[72,"move","low1",0.5,1],[74,"press","d1-play"],[74,"say","Reset A. Done."]],"len":80,"b":"<p>All five moves in one take. Watch where each lands on the bar numbers.</p>"},{"t":"Drill it","b":"<ul class=\"todo\"><li>Ten times with sync on. Hot cues take you back to A’s outro.</li><li>Five times with sync off.</li><li>Change one thing each time: a 16-bar fade, a slower bass swap, a small MID cut.</li></ul>"},{"t":"Record one","b":"<p>Open REC in rekordbox. Record one blend and listen with your hands off. Note the weakest moment.</p><p class=\"fine\">Recording needs files you own.</p>"},{"t":"Smart Fader","pre":{"d1":{"track":"A","at":224,"play":true},"d2":{"track":"B","at":0,"play":true},"set":{"fader1":1,"fader2":1,"xfader":0,"low1":0.5,"low2":0.5},"lit":{"hcue2":0}},"demo":[[1,"press","smartfader"],[3,"move","xfader",1,16],[4,"say","One hand. It swaps the bass for you."],[21,"press","smartfader"]],"len":24,"b":"<p>[[SMART FADER]] does the blend from the crossfader alone: sync, BPM and bass swap.</p><p>Listen, turn it off, then copy it by hand.</p>"},{"t":"Pass check","pass":1,"b":"<p>A recorded blend. The kick never doubles, the bass never comes from both, the volume stays steady.</p>"}],"sub":"Your first transition"},{"id":"s6","nm":"Loops and jumps","init":{"fader1":1},"steps":[{"t":"Buy time, fix timing","b":"<p>A loop repeats a section for as long as you need.</p><p>Beat jump moves the playhead without breaking the rhythm.</p>"},{"t":"A 4-beat loop","pre":{"d1":{"track":"A","at":62,"play":true},"d2":null},"demo":[[2,"press","d1-4beat"],[3,"say","The same 4 beats. Shaded on the strip."],[14,"press","d1-4beat"],[14,"say","Pressed again. The track carries on."]],"len":22,"b":"<p>Press [[4 BEAT/EXIT]]. The next 4 beats repeat until you press it again.</p>"},{"t":"Halve and double","pre":{"d1":{"track":"A","at":62,"play":true},"d2":null},"demo":[[2,"press","d1-4beat"],[6,"press","d1-call-r"],[6,"say","Doubled to 8 beats."],[14,"press","d1-call-l"],[14,"say","Halved to 4…"],[18,"press","d1-call-l"],[18,"say","2…"],[20,"press","d1-call-l"],[20,"say","1."],[22,"press","d1-4beat"],[22,"say","And out."]],"len":28,"b":"<p>In a loop, [[CALL ►]] doubles it and [[CALL ◄]] halves it.</p><p>[[IN]] and [[OUT]] set one by hand.</p>"},{"t":"Extend an outro","pre":{"d1":{"track":"A","at":244,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low1":0.5,"low2":0}},"demo":[[4,"press","d1-4beat"],[4.6,"press","d1-call-r"],[5,"say","A’s last two bars are looping."],[12,"press","d2-play"],[13,"move","fader2",1,14],[28,"move","low1",0,0.25],[28,"move","low2",0.5,0.25],[36,"press","d1-4beat"],[36,"move","fader1",0,3],[37,"say","Released. A runs out."]],"len":42,"b":"<p>In A’s last bars: [[4 BEAT/EXIT]], then [[CALL ►]]. Blend B in over the loop.</p><p>Press [[4 BEAT/EXIT]] again to let A go.</p>"},{"t":"Hold an intro","pre":{"d1":{"track":"A","at":200,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low1":0.5,"low2":0.5,"hpmix":0.5,"hplevel":0.5},"lit":{"hcue2":1},"listen":"phones"},"demo":[[0,"say","Headphones: B’s first 4 beats, looping."],[4,"press","d2-play"],[4,"press","d2-4beat"],[24,"say","A’s next phrase. Release in its first bar."],[25,"press","d2-4beat"],[28,"say","Bar 2 lands on bar 2. Aligned."]],"len":34,"b":"<p>Loop B’s first 4 beats in your headphones while you get ready.</p><p>Release in the first bar of A’s next phrase.</p>"},{"t":"Beat jump pads","pre":{"d1":{"track":"A","at":64,"play":true},"d2":{"track":"B","at":32,"play":true,"sync":true},"set":{"fader2":1,"low2":0},"lit":{"hcue2":0},"listen":"room"},"demo":[[1,"press","d2-mode-beatjump"],[4,"press","d2-pad6"],[4,"say","Pad 6: forward 4."],[8,"press","d2-pad5"],[8,"say","Pad 5: back 4."],[12,"press","d2-pad8"],[12,"say","Pad 8: forward 8. Still in rhythm."]],"len":18,"b":"<p>Press [[BEAT JUMP]]. Odd pads jump back, even pads forward.</p><div class=\"padmap\"><span>◄ 1</span><span>1 ►</span><span>◄ 2</span><span>2 ►</span><span>◄ 4</span><span>4 ►</span><span>◄ 8</span><span>8 ►</span></div><p class=\"fine\">[[SHIFT]] + pad 7 or 8 changes the sizes.</p>"},{"t":"One bar late","lock":1,"pre":{"d1":{"track":"A","at":220,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true,"mode":"beatjump"},"set":{"fader2":1,"low2":0}},"demo":[[4,"say","The one… missed it."],[8,"press","d2-play"],[9,"say","A bar late. Beats match, phrases don’t."]],"len":18,"b":"<p>B started a bar late. The beats match, the phrases do not.</p><p>Compare the bar numbers on the strip.</p>"},{"t":"Fix it with one pad","lock":1,"pre":{"d1":{"track":"A","at":230,"play":true},"d2":{"track":"B","at":2,"play":true,"sync":true,"mode":"beatjump"},"set":{"fader2":1,"low2":0}},"demo":[[4,"press","d2-pad6"],[5,"say","Forward 4. Aligned."]],"len":14,"b":"<p>Pad 6 jumps B forward 4 beats. Phrases aligned, rhythm unbroken.</p><p>A bar early? Pad 5 jumps back.</p>"},{"t":"Count back from a drop","pre":{"d1":{"track":"A","at":0,"play":false},"d2":{"track":"B","at":0,"play":false,"sync":true,"hot":{"3":160}},"set":{"fader1":0,"fader2":1,"low2":0.5}},"demo":[[1,"press","d2-pad3"],[1,"say","Pad 3: the drop."],[3,"press","d2-mode-beatjump"],[4,"press","d2-pad7"],[5,"press","d2-pad7"],[5,"say","Pad 7: back 8 beats each press."],[6,"press","d2-pad7"],[7,"press","d2-pad7"],[8,"press","d2-pad7"],[9,"press","d2-pad7"],[10,"press","d2-pad7"],[11,"press","d2-pad7"],[12,"press","d2-pad7"],[13,"press","d2-pad7"],[14,"press","d2-mode-hotcue"],[14,"say","Wait for the one…"],[17,"press","d2-pad5"],[17,"say","16 bars before the drop. Stored on pad 5."]],"len":22,"b":"<p>Jump to the drop on pad 3. In [[BEAT JUMP]], pad 7 hops back 8 beats. Four presses is one phrase.</p><p>Store the one that sits 16 bars before the drop on pad 5.</p>"},{"t":"Beat loop pads","pre":{"d1":{"track":"A","at":172,"play":true},"d2":null,"set":{"fader1":1,"fader2":0}},"demo":[[1,"combo","d1-shift","d1-mode-beatjump"],[4,"press","d1-pad5"],[4,"say","4 beats…"],[8,"press","d1-pad4"],[8,"say","2…"],[10,"press","d1-pad3"],[10,"say","1…"],[11,"press","d1-pad2"],[11,"say","a half…"],[12,"press","d1-pad2"],[12,"say","and out, on the beat."]],"len":18,"b":"<p>[[SHIFT]] + [[BEAT JUMP]] turns the pads into loop lengths. Press a pad again to exit.</p><div class=\"padmap\"><span>1/4</span><span>1/2</span><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span><span>32</span></div>"},{"t":"Pass check","pass":1,"b":"<p>Start a blend one bar late on purpose. Fix it with one pad. Both tracks change phrase together.</p>"}],"sub":"Buy time, fix timing"},{"id":"s7","nm":"Effects","init":{"fader1":1},"steps":[{"t":"Short, in time, on a phrase","b":"<p>That is the whole rule.</p><p>Three moves cover most needs: a filter sweep, an echo-out and one Smart CFX preset.</p>"},{"t":"The BEAT FX strip","pre":{"d1":{"track":"A","at":160,"play":false},"d2":{"track":"B","at":0,"play":false,"sync":true}},"demo":[[1,"touch","fx-select",1],[1,"say","FX SELECT picks the effect."],[3,"touch","fx-ch",1],[3,"say","CH SELECT: channel 1, 2 or both."],[5,"touch","fx-beat-l",0.7],[6,"touch","fx-beat-r",0.7],[5,"say","BEAT: its length in beats."],[8,"touch","fx-depth",1],[8,"say","LEVEL/DEPTH: its strength."],[10,"touch","fx-onoff",1],[10,"say","ON/OFF fires it."]],"len":13,"b":"<ul><li>[[FX SELECT]] picks the effect</li><li>[[CH SELECT]] picks the channel</li><li>[[BEAT ◄ ►]] sets its length</li><li>[[LEVEL/DEPTH]] sets its strength</li><li>[[ON/OFF]] fires it</li></ul>"},{"t":"Filter out: sweep","pre":{"d1":{"track":"A","at":208,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low2":0.5,"cfx1":0.5}},"demo":[[0,"move","cfx1",0.92,15],[2,"say","Slowly right. The bass drains away."],[16,"move","cfx1",0.5,0.5]],"len":20,"b":"<p>Last 4 bars of a phrase: turn A’s [[CFX]] slowly right until it sounds thin.</p>"},{"t":"Filter out: drop","pre":{"d1":{"track":"A","at":208,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":1,"low2":0.5,"cfx1":0.5}},"demo":[[0,"move","cfx1",0.92,15],[16,"move","fader1",0,0.2],[16,"press","d2-play"],[16.4,"move","cfx1",0.5,0.6],[17,"say","On the one: A out, B in at full weight."]],"len":26,"b":"<p>On the one: A’s fader down, knob back to centre, B in.</p>"},{"t":"Filter in","pre":{"d1":{"track":"A","at":224,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":1,"cfx2":0.9,"cfx1":0.5,"low2":0.5}},"demo":[[0,"press","d2-play"],[1,"move","cfx2",0.5,30],[1,"move","fader1",0,30],[3,"say","B opens up as A fades."]],"len":34,"b":"<p>The reverse. Start B with [[CFX]] turned right, and open it over 8 bars as A fades.</p>"},{"t":"Echo-out: set up","pre":{"d1":{"track":"A","at":160,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"cfx2":0.5,"fx-ch":0.5}},"demo":[[1,"press","fx-select"],[1,"say","Pick ECHO. rekordbox shows the name."],[4,"move","fx-ch",0,0.5],[5,"say","CH SELECT to channel 1."],[7,"press","fx-beat-l"],[9,"press","fx-beat-r"],[9,"say","Beat value: 1."]],"len":12,"b":"<p>[[FX SELECT]] to ECHO. [[CH SELECT]] to A’s channel. [[BEAT ◄ ►]] to 1.</p>"},{"t":"Echo-out: fire","pre":{"d1":{"track":"A","at":184,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":1,"low2":0.5,"fx-ch":0}},"demo":[[0,"say","Last bars of the phrase…"],[7,"press","fx-onoff"],[7.85,"move","fader1",0,0.15],[8,"press","d2-play"],[8,"say","A echoes away over B."],[16,"press","fx-onoff"]],"len":22,"b":"<p>Last beat of A’s phrase: [[ON/OFF]], A’s fader down, start B on the one.</p><p>Turn it off when the tail fades.</p>"},{"t":"Smart CFX","pre":{"d1":{"track":"A","at":160,"play":true},"d2":null,"set":{"fader1":1,"cfx1":0.5}},"demo":[[1,"combo","d1-shift","smartcfx"],[1,"say","SHIFT + SMART CFX opens the preset list."],[4,"press","smartcfx"],[8,"move","cfx1",0.95,7],[9,"say","One knob, a chain of effects."],[16,"move","cfx1",0.5,0.4],[20,"press","smartcfx"]],"len":24,"b":"<p>[[SHIFT]] + [[SMART CFX]] opens the presets in rekordbox. Pick an echo.</p><div class=\"tags\"><span>PHANTOM ECHO</span><span>REFLECT ECHO</span><span>MOBIUS ECHO</span><span>VAPORIZE</span><span>NOISE CHOPPER</span><span>CYBER JET</span><span>CYBER PITCH</span><span>TWISTER</span></div><p>Turn it on, sweep [[CFX]] through the last 2 bars, centre it on the one.</p>"},{"t":"Pad FX","pre":{"d1":{"track":"A","at":160,"play":true},"d2":null,"set":{"fader1":1}},"demo":[[1,"press","d1-mode-padfx"],[4,"hold","d1-pad1",2],[4,"say","Held: on."],[6,"say","Released: off."],[8,"hold","d1-pad2",3]],"len":14,"b":"<p>Press [[PAD FX1]]. An effect lasts only while you hold the pad, so it is hard to overuse.</p>"},{"t":"One per transition","b":"<p>Record three transitions with exactly one effect each. Listen back.</p>"},{"t":"Pass check","pass":1,"b":"<p>An echo-out whose tail lands in time, with the next track clean on the one.</p>"}],"sub":"Filter, echo, Smart CFX"},{"id":"s8","nm":"Long blends","init":{"fader1":1},"steps":[{"t":"Keys have to agree","pre":{"d1":{"track":"A","at":160,"play":true},"d2":{"track":"B","at":160,"play":true,"sync":true},"set":{"fader2":0,"low2":0}},"demo":[[2,"move","fader2",1,2],[5,"say","Compatible keys. The melodies sit together."]],"len":20,"b":"<p>In a long blend two melodies play together, so their notes must fit. rekordbox shows each track’s key.</p><p>Compatible: the same code, one number up or down, or the other letter.</p><div class=\"tags\"><span class=\"q\">8A goes with</span><span>8A</span><span>7A</span><span>9A</span><span>8B</span></div><p class=\"fine\">Preferences &gt; View &gt; key display: Alphanumeric.</p>"},{"t":"Hear a clash","pre":{"d1":{"track":"A","at":160,"play":true},"d2":{"track":"B","at":160,"play":true,"sync":true,"tr":1},"set":{"fader2":0,"low2":0}},"demo":[[2,"move","fader2",1,2],[5,"say","One semitone apart. Sour."],[14,"move","fader2",0,1]],"len":18,"b":"<p>The same two tracks, one shifted a semitone. It turns sour.</p><p>Turn Master Tempo on (MT) so tempo changes do not shift the pitch.</p>"},{"t":"Blends by style","b":"<div class=\"tw\"><table class=\"st\"><tr><th>Style</th><th>BPM</th><th>Blend</th></tr><tr><td>House</td><td>120–128</td><td>16 to 32 bars, bass swap on a phrase</td></tr><tr><td>Techno</td><td>128–140</td><td>32 bars or more, slow EQ</td></tr><tr><td>Afrobeats</td><td>95–115</td><td>4 to 8 bars over a loop</td></tr><tr><td>Amapiano</td><td>108–115</td><td>Long, swap as the log drum lands</td></tr></table></div><p class=\"fine\">Typical ranges. The demos use the house tracks.</p>"},{"t":"Pair your tracks","b":"<p>Sort Practice by BPM. Give each track a partner within 4 BPM, in a compatible key.</p>"},{"t":"Long blend: bring B in","lock":1,"pre":{"d1":{"track":"A","at":224,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low2":0,"low1":0.5,"hi1":0.5,"mid1":0.5}},"demo":[[0,"press","d2-play"],[1,"move","fader2",1,60],[4,"say","Sixteen bars. No hurry."]],"len":66,"b":"<p>Start B at A’s outro with its [[LOW]] cut. Raise the fader over 16 bars.</p>"},{"t":"Long blend: swap the bass","lock":1,"pre":{"d1":{"track":"A","at":24,"play":true},"d2":{"track":"B","at":56,"play":true,"sync":true},"set":{"fader1":1,"fader2":1,"low2":0,"low1":0.5}},"demo":[[8,"move","low1",0,0.25],[8,"move","low2",0.5,0.25],[9,"say","On the one, as before."]],"len":16,"b":"<p>On the one, swap the [[LOW]] knobs.</p>"},{"t":"Long blend: thin A out","pre":{"d1":{"track":"A","at":32,"play":true},"d2":{"track":"B","at":64,"play":true,"sync":true},"set":{"low1":0,"low2":0.5,"fader2":1,"fader1":1,"hi1":0.5,"mid1":0.5}},"demo":[[1,"move","hi1",0.05,14],[2,"say","HI first…"],[17,"move","mid1",0.08,14],[18,"say","then MID…"],[33,"move","fader1",0,28],[34,"say","then the fader."]],"len":64,"b":"<p>Over 16 bars: [[HI]], then [[MID]], then the fader.</p>"},{"t":"Afrobeats: loop and release","pre":{"d1":{"track":"A","at":244,"play":true},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":1,"low1":0.5,"low2":0.5,"hi1":0.5,"mid1":0.5}},"demo":[[4,"press","d1-4beat"],[5,"say","Loop A’s last beats."],[8,"press","d2-play"],[8,"move","low1",0,0.25],[16,"press","d1-4beat"],[16,"move","fader1",0,0.5],[17,"say","Released before B’s melody."]],"len":24,"b":"<p>Short intros. Loop A’s last instrumental beats, start B, and let A go before B’s vocal.</p><p>Never two lead vocals at once.</p>"},{"t":"Amapiano: the log drum","pre":{"d1":{"track":"A","at":240,"play":true},"d2":{"track":"B","at":16,"play":true,"sync":true},"set":{"fader1":1,"fader2":1,"low1":0.5,"low2":0}},"demo":[[0,"say","B’s intro runs under A. No bass yet."],[16,"move","low1",0,0.25],[16,"move","low2",0.5,0.25],[17,"say","Swapped as B’s bass arrives."],[20,"move","fader1",0,8]],"len":32,"b":"<p>Run B’s long intro under A. Swap the bass on the phrase where B’s log drum lands.</p>"},{"t":"Pass check","pass":1,"b":"<p>Three blends in a row, 16 bars or longer. No doubled bass, no clashing vocals, no sour notes.</p>"}],"sub":"House, techno, afrobeats, amapiano"},{"id":"s9","nm":"Quick mixes","init":{"fader1":1},"steps":[{"t":"Short tracks, fast changes","b":"<p>Hip-hop, R&amp;B, pop and Latin are short and vocal-led. Change at the end of a hook.</p><div class=\"tw\"><table class=\"st\"><tr><th>Style</th><th>BPM</th><th>Transition</th></tr><tr><td>Hip-hop</td><td>80–100</td><td>Cut on the one, or echo-out</td></tr><tr><td>R&amp;B</td><td>60–100</td><td>Echo-out, or fade under a breakdown</td></tr><tr><td>Pop</td><td>100–130</td><td>4 to 8 bars after a chorus</td></tr><tr><td>Reggaeton</td><td>88–100</td><td>4 to 8 bars on the drums</td></tr></table></div><p class=\"fine\">Typical ranges. Trap at 130–160 often feels like half that.</p>"},{"t":"Crossing a tempo gap","b":"<ul><li><b>Up to 6%</b> Ride it. Match B to A, blend, ease B back.</li><li><b>Double or half</b> Beatmatch as they are: 70 fits 140.</li><li><b>Anything else</b> Break the beat. Echo-out or cut, then start B on the one.</li></ul>"},{"t":"The cut: set up","pre":{"d1":{"track":"C","at":40,"play":true},"d2":{"track":"D","at":0},"set":{"fader1":1,"fader2":0,"xfader":0.5}},"demo":[[1,"move","xfader",0,1],[3,"move","fader2",1,1],[5,"press","d2-cue"]],"len":9,"b":"<p>Crossfader fully on A’s side, both faders up. Cue B on its first beat.</p>"},{"t":"The cut: go","pre":{"d1":{"track":"C","at":56,"play":true},"d2":{"track":"D","at":0},"set":{"xfader":0,"fader1":1,"fader2":1}},"demo":[[0,"say","Two bars to the one…"],[8,"press","d2-play"],[8,"move","xfader",1,0.12],[9,"say","PLAY and crossfader, one movement."]],"len":18,"b":"<p>On the one: [[PLAY/PAUSE]] on B and snap the crossfader across. One movement.</p><p>Do 20.</p>"},{"t":"Fader Start","pre":{"d1":{"track":"C","at":56,"play":true},"d2":{"track":"D","at":0},"set":{"xfader":0,"fader1":1,"fader2":1}},"demo":[[7,"hold","d1-shift",2],[8,"move","xfader",1,0.15],[8,"do","play",2],[9,"say","SHIFT held. The crossfader started deck 2."]],"len":18,"b":"<p>Hold [[SHIFT]] and move the crossfader. B starts from its cue point by itself.</p><p class=\"fine\">Nothing? Turn Fader Start on in Preferences &gt; Controller &gt; Mixer.</p>"},{"t":"Echo-out drop","pre":{"d1":{"track":"C","at":56,"play":true},"d2":{"track":"A","at":64,"play":false},"set":{"xfader":0.5,"fader1":1,"fader2":1,"fx-ch":0}},"demo":[[0,"say","Hip-hop at 95 BPM…"],[7,"press","fx-onoff"],[7.85,"move","fader1",0,0.15],[8,"press","d2-play"],[8,"say","…echoes out. House at 124 starts on the one."],[14,"press","fx-onoff"]],"len":20,"b":"<p>Echo out of hip-hop at 95 and start house at 124 on the one.</p><p>No beatmatching.</p>"},{"t":"Tempo ride: blend","lock":1,"pre":{"d1":{"track":"A","at":220,"play":true,"base":100},"d2":{"track":"B","base":105,"at":0},"set":{"fader1":1,"fader2":0,"low2":0,"low1":0.5,"xfader":0.5}},"demo":[[0,"say","B is 105. A is playing at 100."],[1,"move","d2-tempo",0.103,2],[4,"press","d2-play"],[5,"move","fader2",1,14],[20,"move","low1",0,0.25],[20,"move","low2",0.5,0.25],[21,"move","fader1",0,10]],"len":34,"b":"<p>Two tracks 5 BPM apart, Master Tempo on. Slow B to A’s tempo and blend over 8 bars.</p><p class=\"fine\">[[SHIFT]] + [[BEAT SYNC]] gives a wider range if you run out of slider.</p>"},{"t":"Tempo ride: return","pre":{"d1":{"track":"A","at":64,"play":false,"base":100},"d2":{"track":"B","base":105,"at":64,"play":true,"tempoV":0.103},"set":{"fader1":0,"fader2":1,"low2":0.5,"low1":0.5}},"demo":[[0,"say","Every 2 bars here. In a set, once per phrase."],[8,"move","d2-tempo",0.2,0.4],[16,"move","d2-tempo",0.3,0.4],[24,"move","d2-tempo",0.4,0.4],[32,"move","d2-tempo",0.5,0.4],[33,"say","Back at 105."]],"len":38,"b":"<p>A is out. Bring B back to its own tempo in small steps, one per phrase.</p>"},{"t":"Half-time","pre":{"d1":{"track":"C","base":70,"at":0,"play":true},"d2":{"track":"A","at":64,"play":true,"base":140},"set":{"fader1":1,"fader2":1,"low2":0,"low1":0.5}},"demo":[[0,"say","Every second fast kick lands on a slow one."]],"len":24,"b":"<p>70 and 140 BPM. Blend them and hear the beats interlock.</p>"},{"t":"Smart Fader across a gap","pre":{"d1":{"track":"A","at":64,"play":true,"base":114},"d2":{"track":"B","base":124,"at":32,"play":true},"set":{"fader1":1,"fader2":1,"xfader":0,"low1":0.5,"low2":0.5}},"demo":[[1,"press","smartfader"],[3,"move","xfader",1,20],[5,"say","Watch the BPM slide from 114 to 124."],[25,"press","smartfader"]],"len":28,"b":"<p>[[SMART FADER]] on. Crossfade two tracks 10 BPM apart and watch the BPM slide.</p><p>Then try it by hand.</p>"},{"t":"Five-track run","b":"<p>Afrobeats, hip-hop, pop, house, amapiano. Pick the move for each change first.</p><p>Then play all four without stopping.</p>"},{"t":"Pass check","pass":1,"b":"<p>Five tracks, four genre changes. Nothing longer than 8 bars. No two beats fighting.</p>"}],"sub":"Hip-hop, pop and tempo jumps"},{"id":"s10","nm":"Record a mix","init":{"fader1":1},"steps":[{"t":"Everything at once","b":"<p>A recorded mix tests all four questions. Listening back is the fastest feedback there is.</p><p>Plan the order and the mix points. Leave your hands to the moment.</p>"},{"t":"Build the set list","b":"<ul class=\"todo\"><li>10 to 12 files you own.</li><li>Start mid-energy, peak two-thirds through, ease off.</li><li>Keep neighbours close in tempo and key.</li></ul>"},{"t":"Mark in and out","pre":{"d1":{"track":"A","at":0,"play":false},"d2":null},"demo":[[1,"press","d1-pad1"],[1,"say","Pad 1: mix-in."],[3,"skip",1,224],[4,"press","d1-pad4"],[4,"say","Pad 4: mix-out."]],"len":8,"b":"<p>Every track: pad 1 at the mix-in, pad 4 at the mix-out. Write each transition down.</p>"},{"t":"Rehearse each change","pre":{"d1":{"track":"A","at":100,"play":true,"hot":{"1":0,"4":224}},"d2":{"track":"B","at":0,"play":false,"sync":true},"set":{"fader1":1,"fader2":0,"low2":0}},"demo":[[4,"press","d1-pad4"],[4,"press","d2-play"],[4,"say","Pad 4 jumps A to its mix-out. B starts with it."],[5,"move","fader2",1,14]],"len":22,"b":"<p>Run each transition once. Pad 4 jumps straight to the outgoing track’s end.</p>"},{"t":"Record","b":"<p>Open REC. Play the set through without stopping. Mistakes stay in.</p>"},{"t":"Listen tomorrow","b":"<p>Away from the controller. For each transition, write the question it got wrong.</p><ul><li>When?</li><li>How fast?</li><li>How loud?</li><li>Why this track?</li></ul>"},{"t":"Fix two things","b":"<p>Take the two weakest transitions back to their session. Drill, then record again next week.</p>"},{"t":"Pass check","pass":1,"b":"<p>A 30-minute recording you would play to a friend, and three things to fix.</p><p>One recorded mix every week or two beats any new technique.</p>"}],"sub":"Thirty minutes, start to finish"}];
+
+/* ---------- saved place (per browser; the page works without it) ---------- */
+const KEY = 'flx4-fundamentals-v2';
+let store = {si:0, ki:0, done:{}, seen:{}, todo:{}, zoom:null, auto:true, sound:true, drill:{}, midiMap:{}, midiFlip:false, midiAuto:false};
+try { const raw = localStorage.getItem(KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
+sim.sound = store.sound !== false;
+const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- screen strip: beats passing the playhead, read from the audio engine ---------- */
+const cv = $('#lanes'), g2 = cv.getContext('2d'), css = {};
+let cvW = 0, cvH = 0, showLock = false, hideBpm = false, lastStatus = '';
+(function readCss() { const g = getComputedStyle(document.documentElement); ['scr-lane', 'scr-ink', 'scr-dim', 'd1', 'd2', 'ok'].forEach(k => { css[k] = g.getPropertyValue('--' + k).trim() || '#888'; }); })();
+function sizeCanvas() {
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+  cvW = r.width; cvH = r.height; cv.width = Math.max(1, Math.round(cvW * d)); cv.height = Math.max(1, Math.round(cvH * d)); g2.setTransform(d, 0, 0, d, 0, 0);
+}
+function blk(x, y, w, h, r) { if (g2.roundRect) { g2.beginPath(); g2.roundRect(x, y, w, h, r); g2.fill(); } else g2.fillRect(x, y, w, h); }
+const P = {1:0, 2:0};
+function drawLanes() {
+  const W = cvW, H = cvH; if (!W) return;
+  g2.clearRect(0, 0, W, H);
+  const lh = H / 2, cx = Math.round(W * .34), pps = W / 4.2, font = '500 10px "Space Grotesk", ui-sans-serif, sans-serif';
+  [1, 2].forEach((n, i) => {
+    const d = AE.D[n], y0 = i * lh + (i ? 1 : 4), h = lh - 5;
+    g2.globalAlpha = 1; g2.fillStyle = css['scr-lane']; blk(0, y0, W - 4, h, 7);
+    if (!d.track) { g2.fillStyle = css['scr-dim']; g2.font = font; g2.fillText('No track loaded', cx + 12, y0 + h / 2 + 3.5); return; }
+    const p = P[n], m = d.cur, ppb = pps * 60 / (AE.bpm(n) || 120), col = n === 1 ? css.d1 : css.d2, bw = Math.max(3, ppb * .24);
+    g2.save(); g2.beginPath(); g2.rect(0, y0, W - 4, h); g2.clip();
+    if (m.loop > 0) { g2.globalAlpha = .2; g2.fillStyle = css.ok; g2.fillRect(cx + (m.ls - p) * ppb, y0, m.loop * ppb, h); }
+    const b0 = Math.max(0, Math.floor(p - cx / ppb) - 1), b1 = Math.ceil(p + (W - cx) / ppb) + 1;
+    for (let b = b0; b <= b1; b++) {
+      const x = cx + (b - p) * ppb, isBar = b % 4 === 0, one = b % 32 === 0, bh = one ? h * .84 : isBar ? h * .62 : h * .34;
+      g2.globalAlpha = x + bw < cx ? .3 : 1; g2.fillStyle = one ? css['scr-ink'] : col; blk(x, y0 + h / 2 - bh / 2, bw, bh, 2);
+      if (isBar) { g2.fillStyle = one ? css['scr-ink'] : css['scr-dim']; g2.font = font; g2.fillText(String((b % 32) / 4 + 1), x + bw + 4, y0 + 12); }
+    }
+    g2.restore();
+  });
+  g2.globalAlpha = 1; g2.fillStyle = css['scr-ink']; blk(cx - 1, 1, 2, H - 2, 1);
+}
+const rd = {}; ['r1n', 'r1b', 'r1p', 'r2n', 'r2b', 'r2p'].forEach(k => { rd[k] = {el:document.getElementById(k), v:null}; });
+const put = (k, v) => { if (rd[k].v !== v) { rd[k].v = v; rd[k].el.textContent = v; } };
+const statusEl = $('#status');
+function readouts() {
+  [1, 2].forEach(n => {
+    const d = AE.D[n], p = P[n];
+    put('r' + n + 'n', d.track ? d.label : 'Empty');
+    put('r' + n + 'b', d.track ? (hideBpm ? '???' : AE.bpm(n).toFixed(1)) : '');
+    put('r' + n + 'p', d.track ? (Math.floor((p % 32) / 4) + 1) + '.' + (Math.floor(p % 4) + 1) : '');
+  });
+  let cls = '', txt = '';
+  const a = AE.D[1], b = AE.D[2];
+  if (((showLock && Demo.on) || trying) && a.track && b.track && a.cur.playing && b.cur.playing) {
+    const dbpm = (b.cur.rate - a.cur.rate) * 60, ph = (((P[2] - P[1]) % 1) + 1.5) % 1 - .5;
+    if (Math.abs(dbpm) > .05) { cls = 'warn'; txt = 'Drifting. Deck 2 is ' + (dbpm > 0 ? 'faster' : 'slower'); }
+    else if (Math.abs(ph) > .04) { cls = 'warn'; txt = 'Deck 2 ' + (ph > 0 ? 'ahead' : 'behind') + ' by ' + Math.abs(ph).toFixed(2) + ' beat'; }
+    else { let bars = Math.round(((((P[2] - P[1]) % 32) + 32) % 32) / 4) % 8; if (bars > 4) bars = 8 - bars; if (bars) { cls = 'warn'; txt = 'Phrases ' + bars + (bars === 1 ? ' bar' : ' bars') + ' apart'; } else { cls = 'ok'; txt = 'Locked'; } }
+  }
+  const key = cls + txt;
+  if (key !== lastStatus) { lastStatus = key; statusEl.hidden = !txt; statusEl.className = 'status ' + cls; statusEl.textContent = txt; }
+}
+const segState = {1:-1, 2:-1}, hold = {1:0, 2:0}, TH = [.03, .1, .25, .5, .85];
+function meters() {
+  [1, 2].forEach(n => {
+    hold[n] = Math.max(AE.level(n), hold[n] * .9);
+    let lv = 0; for (let i = 0; i < 5; i++) if (hold[n] > TH[i]) lv = i + 1;
+    if (segState[n] === lv) return; segState[n] = lv;
+    segs[n].forEach(s => { const i = +s.dataset.i, on = i < lv; s.classList.toggle('g', on && i < 3); s.classList.toggle('o', on && i === 3); s.classList.toggle('r', on && i === 4); });
+  });
+}
+function frame() {
+  playerTick(); drillTick();
+  if (dirty) { AE.refresh(sim); dirty = false; }
+  [1, 2].forEach(n => { P[n] = AE.pos(n); spins[n].style.transform = 'rotate(' + ((P[n] * 90) % 360).toFixed(1) + 'deg)'; });
+  drawLanes(); readouts(); meters();
+  requestAnimationFrame(frame);
+}
+
+/* ---------- highlights and zoom ---------- */
+function setHL(list) {
+  ids.forEach(id => el[id].classList.remove('hl', 'lift'));
+  Object.keys(zel).forEach(z => zel[z].classList.remove('hl'));
+  const zs = []; let any = false;
+  list.forEach(id => { if (Z[id]) { zel[id].classList.add('hl'); zs.push(Z[id]); any = true; } else if (el[id]) { el[id].classList.add('hl'); any = true; } });
+  if (zs.length) ids.forEach(id => { const b = C[id].bb, cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2; if (zs.some(z => cx >= z[0] && cx <= z[0] + z[2] && cy >= z[1] && cy <= z[1] + z[3])) el[id].classList.add('lift'); });
+  svg.classList.toggle('dim', any);
+}
+const FULL = [0, 0, 1200, 680], wrap = $('.panel-wrap');
+let zoomOn = store.zoom === null ? window.innerWidth < 820 : !!store.zoom, vb = FULL.slice(), vbAnim = 0;
+function viewFor(list) {
+  const wide = {v:FULL, tall:false};
+  if (!zoomOn || !list.length) return wide;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  list.forEach(id => { const b = Z[id] || (C[id] && C[id].bb); if (!b) return; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[0] + b[2]); y1 = Math.max(y1, b[1] + b[3]); });
+  if (x0 > x1) return wide;
+  const narrow = window.innerWidth < 700, AR = narrow ? 1 : 1200 / 680, pad = narrow ? 90 : 150;
+  let w = x1 - x0 + pad, h = y1 - y0 + pad;
+  if (w / h < AR) w = h * AR;
+  w = Math.max(w, narrow ? 400 : 540);
+  if (w >= (narrow ? 1000 : 1080)) return wide;
+  h = w / AR;
+  const x = clamp((x0 + x1) / 2 - w / 2, 0, 1200 - w), y = h >= 680 ? (680 - h) / 2 : clamp((y0 + y1) / 2 - h / 2, 0, 680 - h);
+  return {v:[x, y, w, h], tall:narrow};
+}
+function zoomTo(plan) {
+  const t = plan.v; wrap.classList.toggle('tall', plan.tall); cancelAnimationFrame(vbAnim);
+  const from = vb.slice(), t0 = performance.now(), dur = calm ? 1 : 520;
+  const stepf = now => { let u = clamp((now - t0) / dur, 0, 1); u = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; vb = from.map((f, i) => f + (t[i] - f) * u); svg.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' ')); if (u < 1) vbAnim = requestAnimationFrame(stepf); };
+  vbAnim = requestAnimationFrame(stepf);
+}
+
+/* ---------- lesson column and navigation ---------- */
+let si = clamp(store.si | 0, 0, S.length - 1), ki = 0, goNow = '';
+ki = clamp(store.ki | 0, 0, S[si].steps.length - 1);
+const hm = /^#s(\d+)(?:-(\d+))?(-go|-try)?$/.exec(location.hash || '');
+if (hm && +hm[1] < S.length) { si = +hm[1]; ki = hm[2] ? clamp(+hm[2] - 1, 0, S[si].steps.length - 1) : 0; goNow = hm[3] || ''; }
+const fmt = s => s.replace(/\[\[(.+?)\]\]/g, '<b class="k">$1</b>');
+const railEl = $('#rail'), segsEl = $('#segs'), titleEl = $('#title'), copyEl = $('#copy'), sheet = $('#sheet'), scrim = $('#scrim'), menuBtn = $('#menuBtn');
+const curHL = () => S[si].steps[ki].hl || prep(S[si].steps[ki]).ids;
+S.forEach((s, i) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'sess'; b.dataset.i = i;
+  b.innerHTML = '<span class="n"></span><span class="nm">' + s.nm + '<span class="sb">' + s.sub + '</span></span><span class="ct">' + s.steps.length + ' steps</span>';
+  railEl.appendChild(b);
+});
+function openSheet(on) { sheet.hidden = scrim.hidden = !on; menuBtn.setAttribute('aria-expanded', String(on)); if (on) { const c = railEl.querySelector('.cur'); if (c) c.focus(); } }
+menuBtn.addEventListener('click', () => openSheet(sheet.hidden));
+scrim.addEventListener('click', () => openSheet(false));
+railEl.addEventListener('click', e => { const b = e.target.closest('.sess'); if (b) { openSheet(false); go(+b.dataset.i, 0); } });
+segsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(si, +b.dataset.k); });
+let segFor = -1;
+function renderCard(fresh) {
+  const ses = S[si], st = ses.steps[ki], n = ses.steps.length, passed = S.slice(1).filter(s => store.done[s.id]).length + ' of ' + (S.length - 1) + ' passed';
+  const eb = $('#eyebrow'), ct = document.createElement('b'); eb.textContent = si === 0 ? 'Start here' : 'Session ' + si + ' · ' + ses.nm; ct.textContent = (ki + 1) + ' / ' + n; eb.appendChild(ct);
+  $('#crumbT').textContent = 'Sessions'; $('#overall').textContent = passed; $('#sheetProg').textContent = passed;
+  if (fresh) {
+    titleEl.textContent = st.t; copyEl.innerHTML = fmt(st.b);
+    copyEl.querySelectorAll('ul.todo li').forEach((li, i) => {
+      const id = 'td-' + ses.id + '-' + ki + '-' + i, lab = document.createElement('label'), cb = document.createElement('input'), sp = document.createElement('span');
+      cb.type = 'checkbox'; cb.id = id; cb.checked = !!store.todo[id]; cb.addEventListener('change', () => { if (cb.checked) store.todo[id] = 1; else delete store.todo[id]; save(); });
+      sp.innerHTML = li.innerHTML; li.textContent = ''; lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab);
+    });
+    if (!calm) [titleEl, copyEl].forEach(e => { e.classList.remove('in'); void e.offsetWidth; e.classList.add('in'); });
+  }
+  $('#pass').hidden = !st.pass;
+  const pb = $('#passbtn'), done = !!store.done[ses.id]; pb.setAttribute('aria-pressed', String(done)); pb.lastElementChild.textContent = done ? 'Session passed' : 'Mark session passed';
+  $('#prev').disabled = si === 0 && ki === 0;
+  const nx = $('#next'), lastStep = ki === n - 1, lastSes = si === S.length - 1;
+  nx.disabled = lastStep && lastSes; nx.textContent = lastStep ? (lastSes ? 'End of course' : 'Next session') : 'Next';
+  if (segFor !== si) { segFor = si; segsEl.textContent = ''; for (let k = 0; k < n; k++) { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.setAttribute('aria-label', 'Step ' + (k + 1)); segsEl.appendChild(b); } }
+  const seen = store.seen[ses.id] || 0;
+  Array.from(segsEl.children).forEach((b, k) => { b.className = (k === ki ? 'cur' : (k <= seen ? 'seen' : '')) + (store.drill[ses.id + ':' + k] ? ' aced' : ''); });
+  Array.from(railEl.children).forEach((b, i) => { const d = !!store.done[S[i].id]; b.classList.toggle('cur', i === si); b.classList.toggle('done', d); b.firstElementChild.textContent = d ? '✓' : (i === 0 ? '▸' : i); if (i === si) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+}
+let firstRun = true;
+function go(s, k) {
+  if (!chainNav) Dr.chain = null;
+  if (Learn.on) learnEnd();
+  stopDemo(); si = s; ki = k;
+  const ses = S[si], st = ses.steps[ki];
+  fold(si, ki); capA.textContent = ''; capS.textContent = 'Tap any control to see what it does.';
+  const H = curHL();
+  setHL(H); inspect(null); zoomTo(viewFor(H));
+  showLock = !!st.lock; hideBpm = !!st.hideBpm;
+  store.si = si; store.ki = ki; store.mode = mode; store.seen[ses.id] = Math.max(store.seen[ses.id] || 0, ki); save();
+  renderCard(true); uiPlayer();
+  if (!firstRun && window.innerWidth < 1000 && window.scrollY > 40) window.scrollTo({top:0, behavior:calm ? 'auto' : 'smooth'});
+  if (mode === 'drill' && hasDrill(st)) startDrill();
+  else if (mode === 'try' && unlocked) startTry();
+  else if (mode !== 'drill' && st.demo && unlocked && store.auto !== false) startDemo();
+  renderDrill();
+}
+const next = () => { if (ki < S[si].steps.length - 1) go(si, ki + 1); else if (si < S.length - 1) go(si + 1, 0); };
+const prev = () => { if (ki > 0) go(si, ki - 1); else if (si > 0) go(si - 1, S[si - 1].steps.length - 1); };
+$('#next').addEventListener('click', next);
+$('#prev').addEventListener('click', prev);
+$('#passbtn').addEventListener('click', () => { const id = S[si].id; if (store.done[id]) delete store.done[id]; else store.done[id] = 1; save(); renderCard(false); });
+const playOrPause = () => { if (Demo.on) togglePause(); else startDemo(); };
+pp.addEventListener('click', () => { if (trying) { if (mode === 'drill' && hasDrill(S[si].steps[ki])) startDrill(); else startTry(); } else playOrPause(); });
+bigplay.addEventListener('click', startDemo);
+mW.addEventListener('click', () => { mode = store.mode = 'watch'; save(); Dr.chain = null; if (trying) go(si, ki); else { uiPlayer(); renderDrill(); } });
+mT.addEventListener('click', () => { mode = store.mode = 'try'; save(); Dr.chain = null; renderDrill(); if (!trying || Dr.on) startTry(); else uiPlayer(); });
+mD.addEventListener('click', () => { mode = store.mode = 'drill'; save(); if (hasDrill(S[si].steps[ki])) startDrill(); else { stopDemo(); uiPlayer(); renderDrill(); } });
+
+/* ---------- switches ---------- */
+const sndB = $('#snd'), autoB = $('#auto'), zb = $('#zoom');
+const syncTgl = () => { sndB.setAttribute('aria-pressed', String(sim.sound)); sndB.setAttribute('aria-label', sim.sound ? 'Sound on' : 'Sound off'); autoB.setAttribute('aria-checked', String(store.auto !== false)); zb.setAttribute('aria-checked', String(zoomOn)); };
+sndB.addEventListener('click', () => { sim.sound = !sim.sound; store.sound = sim.sound; save(); syncTgl(); dirty = true; });
+autoB.addEventListener('click', () => { store.auto = store.auto === false; save(); syncTgl(); });
+zb.addEventListener('click', () => { zoomOn = !zoomOn; store.zoom = zoomOn; save(); syncTgl(); zoomTo(viewFor(curHL())); });
+$('#lsRoom').addEventListener('click', () => { sim.listen = 'room'; paint(); dirty = true; });
+$('#lsPhones').addEventListener('click', () => { sim.listen = 'phones'; paint(); dirty = true; });
+syncTgl();
+let lastW = window.innerWidth;
+window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; zoomTo(viewFor(curHL())); });
+
+/* ---------- tap a control to see what it does ---------- */
+const tip = $('#tip'); let selId = null;
+function inspect(id) {
+  if (selId && el[selId]) el[selId].classList.remove('sel');
+  selId = id && C[id] ? id : null; tip.hidden = !selId; if (!selId) return;
+  el[selId].classList.add('sel');
+  const o = C[selId], b = o.bb, h = document.createElement('b'); h.textContent = o.name;
+  tip.textContent = ''; tip.appendChild(h); tip.appendChild(document.createTextNode(o.d));
+  if (o.sh) { const s = document.createElement('span'), i = document.createElement('i'); s.className = 'sh2'; i.textContent = 'SHIFT'; s.appendChild(i); s.appendChild(document.createTextNode(o.sh)); tip.appendChild(s); }
+  tip.className = 'tip ' + (b[1] + b[3] / 2 < vb[1] + vb[3] / 2 ? 'b' : 't') + ' ' + (b[0] + b[2] / 2 < vb[0] + vb[2] / 2 ? 'r' : 'l');
+}
+svg.addEventListener('click', e => { if (trying || Learn.on) return; const g = e.target.closest ? e.target.closest('.ctl') : null; inspect(g && g.dataset.id !== selId ? g.dataset.id : null); });
+
+/* ---------- try it: the panel becomes playable, with the step's starting state loaded ---------- */
+const COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), DETENT = /^(hi|mid|low|cfx)\d$|tempo$/;
+let drag = null, shiftKey = false, shiftLatch = false, nudgeTimer = 0, tryPaused = false, lastTap = {id:null, t:0};
+const svgPt = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+const firstLine = s => { const i = s.indexOf('. '); return i < 0 ? s : s.slice(0, i + 1); };
+const say = (a, s) => { capA.textContent = a; capS.textContent = s || ''; };
+function paintShift() { ['d1-shift', 'd2-shift'].forEach((id, i) => { if (shiftKey || shiftLatch || hwShift[i + 1]) sim.lit[id] = 1; else delete sim.lit[id]; }); paint(); }
+function live(setup) {
+  return AE.ensure().then(run => {
+    if (!run && AE.hasAudio()) return false;
+    stopDemo(); fold(si, ki); AE.refresh(sim); dirty = true; inspect(null);
+    trying = true; unlocked = true; svg.classList.add('try');
+    setup();
+    AE.begin(AE.now() + .12);
+    uiPlayer(); return true;
+  });
+}
+function startTry() {
+  return live(() => {
+    setHL(curHL()); renderDrill();
+    say('Your turn', MD.st === 'on' ? 'Play it on your FLX4, or work the panel here.' : COARSE ? 'Drag knobs and faders. Tap buttons. Tap SHIFT to hold it.' : 'Drag knobs and faders. Click buttons. Hold Shift for SHIFT.');
+  });
+}
+function endTry() {
+  endDrill();
+  trying = false; drag = null; shiftKey = shiftLatch = false; clearTimeout(nudgeTimer); svg.classList.remove('try');
+  ids.forEach(id => el[id].classList.remove('grab'));
+  if (tryPaused) { tryPaused = false; AE.resume(); }
+}
+svg.addEventListener('pointerdown', e => {
+  if (Learn.on) { const g = e.target.closest ? e.target.closest('.ctl') : null; if (g) { e.preventDefault(); learnPick(g.dataset.id); } return; }
+  if (!trying) return;
+  const g = e.target.closest ? e.target.closest('.ctl') : null; if (!g) return;
+  const id = g.dataset.id, o = C[id], p = svgPt(e), t = AE.now() + .02, dm = /^d([12])-(.+)$/.exec(id);
+  e.preventDefault(); try { svg.setPointerCapture(e.pointerId); } catch (x) {}
+  if (o.t === 'meter' || o.t === 'enc') { say(o.c || o.name, firstLine(o.d)); if (o.t === 'enc') { drillAct({ty:'press', id:id, sh:shiftHeld() || e.shiftKey}); if (shiftLatch) { shiftLatch = false; paintShift(); } } return; }
+  if (o.t === 'knob' && lastTap.id === id && e.timeStamp - lastTap.t < 380) { lastTap.id = null; userSet(id, BASE[id] != null ? BASE[id] : .5); return; }
+  lastTap = {id:id, t:e.timeStamp};
+  if (o.t === 'knob' || o.t === 'vfade' || o.t === 'vslide' || o.t === 'hfade') { drag = {id:id, o:o, p0:p, v0:sim.pos[id] != null ? sim.pos[id] : .5, pid:e.pointerId}; g.classList.add('grab'); say(o.c || o.name, firstLine(o.d)); return; }
+  if (o.t === 'sw3') { userSet(id, ((Math.round(sim.pos[id] * 2) + 1) % 3) / 2); say(describe({ty:'move', id:id, to:sim.pos[id]}), firstLine(o.d)); return; }
+  if (o.t === 'ring' || o.t === 'jog') { drag = {id:id, o:o, jog:+dm[1], a:Math.atan2(p.x - o.x, o.y - p.y), tm:performance.now(), sent:0, f:0, pid:e.pointerId}; g.classList.add('grab'); drillAct({ty:'touch', id:id}); say(o.c || o.name, firstLine(o.d)); return; }
+  if (dm && dm[2] === 'shift') { flash(id); shiftLatch = !shiftLatch; paintShift(); say('SHIFT', shiftLatch ? 'Held. Now press another control.' : 'Released.'); return; }
+  const sh = shiftKey || shiftLatch || hwShift[1] || hwShift[2] || e.shiftKey;
+  if (btnDown(id, sh) === 'hold') drag = {id:id, hold:1, pid:e.pointerId};
+  if (shiftLatch) { shiftLatch = false; paintShift(); }
+});
+svg.addEventListener('pointermove', e => {
+  if (!drag || !trying || e.pointerId !== drag.pid || drag.hold) return;
+  const p = svgPt(e), o = drag.o;
+  if (drag.jog) {
+    const n = drag.jog, d = AE.D[n], a = Math.atan2(p.x - o.x, o.y - p.y), ms = performance.now(); let da = a - drag.a;
+    if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
+    const dt = Math.max(8, ms - drag.tm) / 1000; drag.a = a; drag.tm = ms; if (!d.track) return;
+    if (!d.playing) { AE.setPos(n, Math.max(0, AE.pos(n) + da / (2 * Math.PI) * 4)); return; }
+    drag.f = drag.f * .6 + clamp(da / dt / (2 * Math.PI) * .3, -.3, .3) * .4;
+    if (ms - drag.sent > 40) { drag.sent = ms; AE.nudge(n, AE.now() + .01, drag.f); }
+    clearTimeout(nudgeTimer); nudgeTimer = setTimeout(() => { if (trying && drag && drag.jog === n) { drag.f = 0; AE.nudge(n, AE.now() + .01, 0); } }, 150);
+    return;
+  }
+  let v;
+  if (o.t === 'knob') v = drag.v0 + ((p.x - drag.p0.x) - (p.y - drag.p0.y)) / 110;
+  else if (o.t === 'vfade') v = drag.v0 - (p.y - drag.p0.y) / o.len;
+  else if (o.t === 'vslide') v = drag.v0 + (p.y - drag.p0.y) / o.len;
+  else v = drag.v0 + (p.x - drag.p0.x) / o.len;
+  v = clamp(v, 0, 1); if (DETENT.test(drag.id) && Math.abs(v - .5) < .025) v = .5;
+  userSet(drag.id, v);
+});
+const endDrag = e => {
+  if (!drag || (e && e.pointerId !== drag.pid)) return;
+  const d = drag; drag = null; if (el[d.id]) el[d.id].classList.remove('grab');
+  if (!trying) return;
+  if (d.hold) btnUp(d.id);
+  if (d.jog) { clearTimeout(nudgeTimer); if (AE.D[d.jog].track) AE.nudge(d.jog, AE.now() + .01, 0); }
+};
+svg.addEventListener('pointerup', endDrag);
+svg.addEventListener('pointercancel', endDrag);
+
+/* ---------- one input path: the screen panel and the FLX4 both arrive here ---------- */
+const hwShift = {1:false, 2:false};
+const shiftHeld = () => shiftKey || shiftLatch || hwShift[1] || hwShift[2];
+const nameOf = id => { const o = C[id]; return !o ? id : o.pad ? 'D' + o.dk + ' pad ' + o.pad : /^(hcue|mastercue)/.test(id) ? o.name : (o.c || o.name); };
+function userSet(id, v) {
+  if (id === 'xfader' && shiftHeld()) {
+    const pv = sim.pos.xfader, t = AE.now() + .02;
+    if (pv < .45 && v >= .45 && AE.D[2].track && !AE.D[2].playing) { AE.play(2, t); later(t, paint); }
+    else if (pv > .55 && v <= .55 && AE.D[1].track && !AE.D[1].playing) { AE.play(1, t); later(t, paint); }
+  }
+  setCtl(id, v); drillAct({ty:'touch', id:id});
+}
+function btnDown(id, sh) {
+  const o = C[id]; if (!o) return '';
+  const t = AE.now() + .02, dm = /^d([12])-(.+)$/.exec(id);
+  flash(id);
+  say((sh ? 'SHIFT + ' : '') + nameOf(id), sh ? (o.sh || 'No second function.') : firstLine(o.d));
+  if (id === 'load1' || id === 'load2') {
+    const n = +id.slice(4);
+    deckSpec(n, drillLoadSpec(n) || {track:AE.D[n].track || (n === 1 ? 'A' : 'B'), at:0});
+    setPos('d' + n + '-tempo', sim.pos['d' + n + '-tempo']); paint(); dirty = true;
+    drillAct({ty:'load', n:n, id:id}); return '';
+  }
+  if (dm && !sh) {
+    const d = AE.D[+dm[1]], k = dm[2];
+    if (k === 'cue' && d.track && !d.playing) { press(id, t); holdOn(id, t + .002); drillAct({ty:'hold', id:id}); return 'hold'; }
+    if (/^pad/.test(k) && d.mode === 'padfx') { holdOn(id, t); drillAct({ty:'hold', id:id}); return 'hold'; }
+  }
+  press(id, t, false, sh); drillAct({ty:'press', id:id, sh:!!sh});
+  return '';
+}
+function btnUp(id) { holdOff(id, AE.now() + .02); drillAct({ty:'release', id:id}); }
+
+/* ---------- drills: each step's demo becomes an assignment, checked as you play ---------- */
+const ANALOG = {master:1, hplevel:1, hpmix:1, mic:1};
+const TOL = .2;
+const Dr = {on:false, stages:[], i:0, fails:0, slips:0, wait:0, tok:0, prog:0, hint:false, done:false, msg:'', mcls:'', note:'', chain:null, t0:0};
+let mode = /^(watch|try|drill)$/.test(store.mode) ? store.mode : 'watch', chainNav = false;
+const hasDrill = st => !!(st && st.demo && st.demo.some(e => e[1] !== 'say'));
+const spb = () => 60 / (AE.bpm(1) || AE.bpm(2) || 124);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;'})[c]);
+function posWord(id, v) {
+  const o = C[id]; if (!o) return '';
+  if (o.t === 'knob') { if (v < .04) return 'fully left'; if (v > .96) return 'fully right'; if (Math.abs(v - .5) < .04) return 'to 12 o’clock'; return 'to about ' + (((12 + Math.round((-150 + v * 300) / 30)) + 11) % 12 + 1) + ' o’clock'; }
+  if (o.t === 'vfade') return v < .05 ? 'all the way down' : v > .95 ? 'all the way up' : 'about ' + Math.round(v * 100) + '% up';
+  if (o.t === 'hfade') return v < .05 ? 'to deck 1' : v > .95 ? 'to deck 2' : Math.abs(v - .5) < .05 ? 'to the centre' : (v < .5 ? 'towards deck 1' : 'towards deck 2');
+  if (o.t === 'vslide') return Math.abs(v - .5) < .03 ? 'to the centre' : v < .5 ? 'towards –' : 'towards +';
+  return '';
+}
+function moveTol(it) { const to = it.to; return Math.abs(to - .5) < .01 ? .05 : (to <= .05 || to >= .95) ? .09 : Math.max(.06, Math.abs(to - it.from) * .25); }
+function label(it) {
+  switch (it.k) {
+    case 'setup': return 'Set ' + nameOf(it.id) + ' ' + posWord(it.id, sim.pos[it.id]);
+    case 'press': return (it.sh ? 'SHIFT + ' : 'Press ') + nameOf(it.id) + (it.n > 1 ? ' ×' + it.n + ' (' + (it.c || 0) + '/' + it.n + ')' : '');
+    case 'hold': return 'Hold ' + nameOf(it.id);
+    case 'move': { const keep = sim.pos[it.id]; sim.pos[it.id] = it.from; const s = describe({ty:'move', id:it.id, to:it.to}); sim.pos[it.id] = keep; return s; }
+    case 'bpm': return 'Set D' + it.n + ' TEMPO so its BPM matches deck ' + (3 - it.n);
+    case 'trim': return 'Set TRIM ' + it.n + ' so the level just reaches orange';
+    case 'lock': return 'Beatmatch deck ' + it.n + ' by ear (TEMPO and jog edge) and keep it Locked for ' + it.bars + ' bars' + (it.acc ? ' · ' + Math.min(it.bars, Math.floor(it.acc / (4 * spb()))) + '/' + it.bars : '');
+    case 'touch': return it.id === 'browse' ? 'Turn the rotary selector' : 'Find ' + nameOf(it.id) + ' and touch it';
+    case 'load': return 'Load ' + (it.spec.label || 'Track ' + it.spec.track) + ' to deck ' + it.n;
+    case 'scrub': return 'Deck ' + it.n + ' paused: turn its jog wheel back to the first kick';
+    case 'fs': return 'Hold SHIFT and move the crossfader over to start deck ' + it.n;
+  }
+  return '';
+}
+function chips(it, stg, j) {
+  const c = [];
+  if (it.k === 'setup') c.push('set up');
+  if (it.on === 'phrase') c.push('on the one'); else if (it.on === 'bar') c.push('on a bar');
+  if (it.slow) c.push('slowly, about ' + Math.max(1, Math.round(it.slow / .4 / 4)) + ' bars');
+  if (stg.tog && j === 0) c.push('together, on a bar');
+  if (ANALOG[it.id] && MD.st === 'on') c.push('not sent over USB');
+  return c.map(s => ' <em>' + s + '</em>').join('');
+}
+const itemIds = it => it.id ? [it.id] : it.k === 'bpm' ? ['d' + it.n + '-tempo'] : it.k === 'lock' ? ['d' + it.n + '-tempo', 'd' + it.n + '-jog-edge'] : it.k === 'trim' ? ['trim' + it.n, 'meter' + it.n] : it.k === 'load' ? ['browse', 'load' + it.n] : it.k === 'scrub' ? ['d' + it.n + '-jog'] : it.k === 'fs' ? ['d1-shift', 'xfader'] : [];
+
+function buildDrill() {
+  const st = S[si].steps[ki]; if (!hasDrill(st)) return null;
+  const ref = st.bpm || AE.bpm(1) || AE.bpm(2) || 124;
+  if (st.demo.some(e => e[1] === 'do')) return [[{k:'fs', n:st.demo.find(e => e[1] === 'do')[3]}]];
+  const raw = st.demo.map((e, i) => ({e:e, i:i})).sort((a, b) => a.e[0] - b.e[0] || a.i - b.i).map(x => x.e);
+  const lock = raw.some(e => e[1] === 'nudge'), mo = {1:AE.D[1].mode, 2:AE.D[2].mode}, pos = Object.assign({}, sim.pos), stages = [];
+  let lastAt = null;
+  const timing = (id, at) => {
+    const m = /^d([12])-/.exec(id), r = m ? 3 - +m[1] : (AE.D[1].playing ? 1 : 2), d = AE.D[r];
+    if (!d.track || !d.playing) return null;
+    const p = AE.pos(r) + at * AE.bpm(r) / ref, on = g => { const o = ((p % g) + g) % g; return o < .08 || o > g - .08; };
+    return on(32) ? {on:'phrase', r:r} : on(4) ? {on:'bar', r:r} : null;
+  };
+  raw.forEach(e => {
+    const at = e[0], ty = e[1]; let it = null;
+    if (ty === 'say') return;
+    if (ty === 'press' || ty === 'combo') {
+      const id = ty === 'combo' ? e[3] : e[2], sh = ty === 'combo' ? 1 : 0, pm = /^d([12])-(.+)$/.exec(id);
+      it = {k:'press', id:id, sh:sh, n:1};
+      if (pm && !sh && (pm[2] === 'play' || (/^pad/.test(pm[2]) && mo[pm[1]] === 'hotcue'))) { const g = timing(id, at); if (g) Object.assign(it, g); }
+      if (pm && /^mode-/.test(pm[2])) mo[pm[1]] = sh && pm[2] === 'mode-beatjump' ? 'beatloop' : pm[2].slice(5);
+    }
+    else if (ty === 'hold') { it = {k:'hold', id:e[2]}; if (/-cue$/.test(e[2])) { const g = timing(e[2], at); if (g) Object.assign(it, g); } }
+    else if (ty === 'move') {
+      const id = e[2], to = e[3], dur = e[4] || 1, tm = /^d([12])-tempo$/.exec(id);
+      if (lock && tm) return;
+      if (tm) { const n = +tm[1]; if (AE.D[3 - n].track && !AE.D[n].sync && Math.abs(AE.D[n].base * (1 + (to - .5) * .12) - AE.raw(3 - n)) < .3) it = {k:'bpm', n:n}; }
+      if (!it && /^trim[12]$/.test(id) && to > .3) it = {k:'trim', n:+id.slice(4)};
+      if (!it) it = {k:'move', id:id, to:to, from:pos[id] != null ? pos[id] : .5, slow:dur >= 8 ? dur * .4 : 0, q:dur <= .5};
+      pos[id] = to;
+      const pv = stages[stages.length - 1];
+      if (it.k === 'move' && lastAt === at && pv && pv.every(x => x.k === 'move')) {
+        pv.push(it);
+        if (pv.every(x => x.q)) { pv.tog = 1; const g = timing(it.id, at); pv.r = g ? g.r : 1; }
+        return;
+      }
+    }
+    else if (ty === 'nudge') { if (stages.some(s => s[0].k === 'lock')) return; it = {k:'lock', n:e[2], bars:4, acc:0}; }
+    else if (ty === 'load') it = {k:'load', n:e[2], spec:e[3]};
+    else if (ty === 'touch') it = {k:'touch', id:e[2]};
+    else if (ty === 'scrub') it = {k:'scrub', n:e[2], to:e[3]};
+    else it = {k:'auto', e:e};
+    const pv = stages[stages.length - 1];
+    if (it.k === 'press' && !it.on && pv && pv.length === 1 && pv[0].k === 'press' && pv[0].id === it.id && pv[0].sh === it.sh && !pv[0].on && at - lastAt <= 2) { pv[0].n++; lastAt = at; return; }
+    stages.push([it]); lastAt = at;
+  });
+  return stages;
+}
+/* controls whose hardware position does not match the step: set them first (soft takeover) */
+function setupStage(stages) {
+  const tgt = {};
+  stages.forEach(s => s.forEach(it => { if (it.k !== 'auto') itemIds(it).forEach(id => { tgt[id] = tgt[id] || it; }); }));
+  const ids = [];
+  Object.keys(pickup).forEach(id => {
+    const it = tgt[id];
+    if (!it) { ids.push(id); return; }
+    if (it.k === 'move' && (it.slow || Math.abs(HW[id] - it.to) <= moveTol(it))) ids.push(id); else delete pickup[id];
+  });
+  return ids.length ? [ids.map(id => ({k:'setup', id:id}))] : [];
+}
+function drillLoadSpec(n) { if (!Dr.on) return null; const s = Dr.stages[Dr.i]; const it = s && s.find(x => x.k === 'load' && x.n === n && !x.ok); return it ? it.spec : null; }
+function startDrill(keep) {
+  if (!hasDrill(S[si].steps[ki])) { renderDrill(); return; }
+  const f = Dr.fails, sl = Dr.slips;
+  live(() => {
+    const stages = buildDrill();
+    Dr.stages = setupStage(stages).concat(stages);
+    Object.assign(Dr, {on:true, i:0, wait:0, done:false, hint:false, msg:'', mcls:'', prog:performance.now(), t0:performance.now(), fails:keep ? f : 0, slips:keep ? sl : 0});
+    Dr.tok++; setHL([]); runAutos(); stageCaption(); renderDrill();
+  });
+}
+function endDrill() { Dr.on = false; Dr.wait = 0; Dr.tok++; }
+function stageCaption() {
+  const s = Dr.stages[Dr.i]; if (!s) return;
+  const it = s.find(x => !x.ok) || s[0];
+  setHL(it.k === 'setup' ? s.filter(x => !x.ok).map(x => x.id) : []);
+  capA.textContent = label(it);
+  capS.textContent = it.k === 'setup' ? 'Match your FLX4 to the screen first. Each control picks up when it reaches the screen position.'
+    : it.on === 'phrase' ? 'Count the phrase. Go when bar 1 comes round on the screen strip.'
+    : it.on === 'bar' || s.tog ? 'Go on the first beat of a bar.'
+    : it.k === 'lock' ? 'Ride TEMPO until the drift stops, then nudge with the jog edge.' : '';
+}
+function runAutos() {
+  while (Dr.stages[Dr.i] && Dr.stages[Dr.i][0].k === 'auto') {
+    const e = Dr.stages[Dr.i][0].e, t = AE.now() + .02;
+    if (e[1] === 'skip') AE.jump(e[2], t, e[3]);
+    else if (e[1] === 'listen') { sim.listen = e[2]; paint(); dirty = true; }
+    else if (e[1] === 'do' && e[2] === 'play') { AE.play(e[3], t); later(t, paint); }
+    Dr.i++;
+  }
+  if (Dr.i >= Dr.stages.length) passDrill();
+}
+function msg(s, cls) { Dr.msg = s; Dr.mcls = cls || ''; capS.textContent = s; drMsg.textContent = s; drMsg.className = 'dr-msg ' + Dr.mcls; }
+function hint() {
+  if (Dr.hint) return; Dr.hint = true;
+  const s = Dr.stages[Dr.i]; if (!s) return;
+  setHL([].concat.apply([], s.filter(x => !x.ok).map(itemIds)));
+}
+function fail(why) {
+  Dr.fails++; Dr.wait = 1; const tok = ++Dr.tok;
+  const s = Dr.stages[Dr.i]; if (s) s.forEach(x => { if (!x.ok) x.bad = 1; });
+  msg(why + ' Resetting…', 'bad'); capA.textContent = 'Not quite'; renderDrill();
+  setTimeout(() => { if (Dr.tok === tok && Dr.on) startDrill(true); }, 1900);
+}
+function timeOk(it) {
+  if (!it.on) return true;
+  const d = AE.D[it.r]; if (!d.playing) return true;
+  const p = AE.pos(it.r), g = it.on === 'phrase' ? 32 : 4;
+  let o = ((p % g) + g) % g; if (o > g / 2) o -= g;
+  if (Math.abs(o) <= TOL) return true;
+  let ob = ((p % 4) + 4) % 4; if (ob > 2) ob -= 4;
+  fail(g === 32 && Math.abs(ob) <= TOL ? 'On a bar, but not the start of the phrase. Wait for bar 1.' : (ob < 0 ? 'Early' : 'Late') + ' by ' + Math.abs(ob).toFixed(2) + ' of a beat.');
+  return false;
+}
+function done(it) { it.ok = true; it.at = performance.now(); Dr.prog = it.at; }
+function drillAct(a) {
+  if (!Dr.on || Dr.done || Dr.wait) return;
+  const s = Dr.stages[Dr.i]; if (!s) return;
+  let hit = false;
+  for (const it of s) {
+    if (it.ok) continue;
+    if (it.k === 'touch' && a.id === it.id) { done(it); hit = true; }
+    else if (it.k === 'trim' && a.id === 'trim' + it.n) { it.mv = performance.now(); hit = true; }
+    else if (it.k === 'load' && a.ty === 'load' && a.n === it.n) { done(it); hit = true; }
+    else if (it.k === 'press' && (a.ty === 'press' || a.ty === 'hold') && a.id === it.id && !!a.sh === !!it.sh) {
+      hit = true; if (!timeOk(it)) return;
+      it.c = (it.c || 0) + 1; if (it.c >= it.n) done(it); else renderDrill();
+    }
+    else if (it.k === 'hold' && a.id === it.id && (a.ty === 'hold' || a.ty === 'press')) { hit = true; if (!timeOk(it)) return; it.ht = performance.now(); }
+    else if (it.k === 'hold' && a.id === it.id && a.ty === 'release' && it.ht) {
+      hit = true; const held = (performance.now() - it.ht) / 1000; it.ht = 0;
+      if (held >= .35) done(it); else msg('Hold it longer than a tap.', 'bad');
+    }
+    if (hit) break;
+  }
+  if (hit) { Dr.prog = performance.now(); drillTick(); return; }
+  if ((a.ty === 'press' || a.ty === 'hold') && !/shift$/.test(a.id) && !s.some(x => itemIds(x).indexOf(a.id) >= 0)) {
+    Dr.slips++; const nx = s.find(x => !x.ok);
+    msg('That was ' + (a.sh ? 'SHIFT + ' : '') + nameOf(a.id) + '. Next: ' + (nx ? label(nx) : '') + '.', 'bad');
+    hint(); renderDrill();
+  }
+}
+function check(it, now) {
+  switch (it.k) {
+    case 'setup': return !pickup[it.id];
+    case 'move': {
+      const v = sim.pos[it.id];
+      if (it.slow && it.t0 == null && Math.abs(v - it.from) > .06) it.t0 = now;
+      if (Math.abs(v - it.to) > moveTol(it)) return false;
+      if (it.slow && it.t0 != null) { const b = (now - it.t0) / 1000 / spb(); if (b < it.slow) { it.t0 = null; fail('Too quick: ' + (Math.round(b) <= 1 ? 'about a beat' : Math.round(b) + ' beats') + '. Spread it over about ' + Math.round(it.slow / .4 / 4) + ' bars.'); return false; } }
+      return true;
+    }
+    case 'bpm': return !AE.D[it.n].sync && Math.abs(AE.bpm(it.n) - AE.bpm(3 - it.n)) < .2;
+    case 'trim': {
+      const lv = segState[it.n];
+      if (lv >= 5) it.red = now; if (lv === 4) it.org = now;
+      if (!it.mv || now - it.mv < 1000) return false;
+      return (it.org && now - it.org < 400 && (!it.red || now - it.red > 2000)) || Math.abs(sim.pos['trim' + it.n] - .6) < .05;
+    }
+    case 'lock': {
+      const dt = it.lt ? (now - it.lt) / 1000 : 0; it.lt = now;
+      if (lastStatus === 'okLocked') it.acc += dt; else it.acc = 0;
+      const bars = Math.floor(it.acc / (4 * spb())); if (bars !== it.shown) { it.shown = bars; renderDrill(); }
+      return it.acc >= it.bars * 4 * spb();
+    }
+    case 'scrub': return !AE.D[it.n].playing && Math.abs(AE.pos(it.n) - it.to) < .15;
+    case 'fs': return AE.D[it.n].playing && (it.n === 2 ? sim.pos.xfader > .5 : sim.pos.xfader < .5);
+  }
+  return false;
+}
+function drillTick() {
+  if (!Dr.on || Dr.done || Dr.wait) return;
+  const s = Dr.stages[Dr.i]; if (!s) return;
+  const now = performance.now(); let ch = false;
+  s.forEach(it => { if (!it.ok && check(it, now)) { done(it); ch = true; } });
+  if (Dr.wait) return;
+  if (s.every(it => it.ok)) {
+    if (s.tog) {
+      const ts = s.map(x => x.at), spread = (Math.max.apply(null, ts) - Math.min.apply(null, ts)) / 1000 / spb();
+      if (spread > 1.2) { s.forEach(x => { x.ok = false; }); fail('Not together: ' + spread.toFixed(1) + ' beats apart. One hand on each knob.'); return; }
+      const d = AE.D[s.r]; if (d && d.playing) { let o = ((AE.pos(s.r) % 4) + 4) % 4; if (o > 2) o -= 4; if (Math.abs(o) > .6) { s.forEach(x => { x.ok = false; }); fail('Together, but not on a bar line. Swap on the one.'); return; } }
+    }
+    Dr.i++; Dr.hint = false; Dr.prog = now; msg('', ''); runAutos();
+    if (!Dr.done) stageCaption();
+    renderDrill(); return;
+  }
+  if (ch) { stageCaption(); renderDrill(); }
+  if (!Dr.hint && now - Dr.prog > 12000) hint();
+}
+function passDrill() {
+  Dr.done = true; const secs = Math.round((performance.now() - Dr.t0) / 1000), key = S[si].id + ':' + ki;
+  const r = store.drill[key] || {n:0}; r.n++; if (!r.best || secs < r.best) r.best = secs; store.drill[key] = r; save();
+  setHL([]); capA.textContent = 'Passed';
+  msg(Dr.fails ? 'Passed after ' + Dr.fails + (Dr.fails === 1 ? ' reset.' : ' resets.') : 'Passed first time.', 'good');
+  renderCard(false); renderDrill();
+  if (Dr.chain) { const tok = Dr.tok; Dr.chain.n++; Dr.chain.fails += Dr.fails; setTimeout(() => { if (Dr.tok === tok) chainNext(); }, 1500); }
+}
+function drillSteps(s) { const out = []; S[s].steps.forEach((st, k) => { if (hasDrill(st)) out.push(k); }); return out; }
+function chainNext() {
+  const c = Dr.chain; if (!c) return;
+  const k = drillSteps(c.si).find(x => x > ki);
+  chainNav = true;
+  if (k != null) go(c.si, k);
+  else {
+    Dr.note = 'Session run done: ' + c.n + ' drills, ' + (c.fails ? c.fails + (c.fails === 1 ? ' reset.' : ' resets.') : 'no resets.');
+    Dr.chain = null; const pi = S[c.si].steps.findIndex(st => st.pass); go(c.si, pi < 0 ? ki : pi);
+  }
+  chainNav = false;
+}
+function runSession() {
+  const ks = drillSteps(si); if (!ks.length) return;
+  Dr.chain = {si:si, n:0, fails:0, total:ks.length}; Dr.note = ''; mode = 'drill';
+  chainNav = true; go(si, ks[0]); chainNav = false;
+}
+function nextDrillStep() {
+  for (let s = si, k = ki + 1; s < S.length; s++, k = 0) for (; k < S[s].steps.length; k++) if (hasDrill(S[s].steps[k])) { go(s, k); return; }
+}
+const drEl = $('#drill'), drList = $('#drList'), drMsg = $('#drMsg'), drMeta = $('#drMeta'), drAct = $('#drAct'), drTitle = $('#drTitle');
+function acts(list) { drAct.innerHTML = list.map(b => '<button type="button" data-a="' + b[0] + '"' + (b[2] ? ' class="pri"' : '') + '>' + b[1] + '</button>').join(''); drAct.hidden = !list.length; }
+function renderDrill() {
+  const st = S[si].steps[ki], show = mode === 'drill' || !!st.pass;
+  drEl.hidden = !show; if (!show) return;
+  if (!Dr.on) {
+    drList.textContent = ''; drMeta.textContent = '';
+    if (st.pass) { drTitle.textContent = 'Session run'; drMsg.textContent = Dr.note || 'Every drill in this session, back to back. A miss resets that drill, not the run.'; acts(drillSteps(si).length ? [['run', 'Run all ' + drillSteps(si).length + ' drills', 1]] : []); }
+    else if (!hasDrill(st)) { drTitle.textContent = 'Assignment'; drMsg.textContent = 'Nothing to do on the controller here. Read the step, then press Next.'; acts([]); }
+    else { drTitle.textContent = 'Assignment'; drMsg.textContent = 'You’ll get this step as a task, checked as you play.'; acts([['start', 'Start drill', 1], ['show', 'Show me first']]); }
+    drMsg.className = 'dr-msg'; return;
+  }
+  const ks = Dr.chain ? drillSteps(Dr.chain.si) : null;
+  drTitle.textContent = Dr.chain ? 'Drill ' + (ks.indexOf(ki) + 1) + ' of ' + ks.length : 'Assignment';
+  drMeta.textContent = (Dr.fails ? 'Try ' + (Dr.fails + 1) : 'First try') + (Dr.slips ? ' · ' + Dr.slips + (Dr.slips === 1 ? ' slip' : ' slips') : '');
+  let h = '', num = 0;
+  Dr.stages.forEach((s, i) => {
+    if (s[0].k === 'auto') return;
+    s.forEach((it, j) => {
+      num++;
+      const cls = it.ok ? 'ok' : it.bad ? 'bad' : i === Dr.i ? 'cur' : '', man = !it.ok && i === Dr.i && ANALOG[it.id] && MD.st === 'on';
+      h += '<li class="' + cls + (j ? ' tog' : '') + '"><i>' + (it.ok ? '' : num) + '</i><span>' + esc(label(it)) + chips(it, s, j) + '</span>' + (man ? '<button type="button" class="dn" data-a="done" data-s="' + i + '" data-j="' + j + '">Done</button>' : '') + '</li>';
+    });
+  });
+  drList.innerHTML = h;
+  drMsg.textContent = Dr.msg; drMsg.className = 'dr-msg ' + Dr.mcls;
+  if (Dr.done) acts(Dr.chain ? [] : [['next', 'Next drill', 1], ['again', 'Again']]);
+  else acts([['restart', 'Start over'], ['show', 'Show me']]);
+}
+drEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const a = b.dataset.a;
+  if (a === 'start') { mode = 'drill'; startDrill(); }
+  else if (a === 'restart' || a === 'again') startDrill();
+  else if (a === 'show') { Dr.chain = null; startDemo(); renderDrill(); }
+  else if (a === 'next') nextDrillStep();
+  else if (a === 'run') runSession();
+  else if (a === 'done') { const it = Dr.stages[+b.dataset.s][+b.dataset.j]; if (it && !it.ok) { if (it.k === 'move') setCtl(it.id, it.to); done(it); renderDrill(); } }
+});
+
+/* ---------- your FLX4 over USB: Web MIDI, Chrome or Edge ---------- */
+const MD = {acc:null, st:'off', name:'', last:'', err:'', held:{}, msb:{}, busy:false, warnT:0};
+const HW = {}, pickup = {}, jogT = {1:0, 2:0}, jogF = {1:0, 2:0};
+let MAP = {};
+function defMap() {
+  const m = {}, put = (k, v) => { m[k] = v; };
+  [1, 2].forEach(n => {
+    const c = n - 1, p = 'd' + n + '-', b = (id, a, sa) => { put('n' + c + ':' + a, {k:'btn', id:p + id}); if (sa != null) put('n' + c + ':' + sa, {k:'btn', id:p + id, sh:1}); };
+    b('play', 0x0B, 0x47); b('cue', 0x0C, 0x48); b('sync', 0x58, 0x5C); b('in', 0x10, 0x4C); b('out', 0x11, 0x4E); b('4beat', 0x4D, 0x50);
+    b('call-l', 0x51, 0x3E); b('call-r', 0x53, 0x3D);
+    b('mode-hotcue', 0x1B, 0x69); b('mode-padfx', 0x1E, 0x6B); b('mode-beatjump', 0x20, 0x6D); b('mode-sampler', 0x22, 0x6F);
+    put('n' + c + ':' + 0x3F, {k:'shift', id:p + 'shift', n:n});
+    put('n' + c + ':' + 0x54, {k:'btn', id:'hcue' + n}); put('n' + c + ':' + 0x68, {k:'btn', id:'hcue' + n, sh:1});
+    put('n' + c + ':' + 0x36, {k:'jt', id:p + 'jog'}); put('n' + c + ':' + 0x67, {k:'jt', id:p + 'jog'});
+    const a = (id, cc) => put('c' + c + ':' + cc, {k:'abs', id:id});
+    a(p + 'tempo', 0x00); a('trim' + n, 0x04); a('hi' + n, 0x07); a('mid' + n, 0x0B); a('low' + n, 0x0F); a('fader' + n, 0x13);
+    put('c' + c + ':' + 0x21, {k:'rel', id:p + 'jog-edge', n:n}); put('c' + c + ':' + 0x22, {k:'rel', id:p + 'jog', n:n}); put('c' + c + ':' + 0x23, {k:'rel', id:p + 'jog', n:n, sh:1});
+    const pc = 7 + (n - 1) * 2;
+    [[0x00, 'hotcue'], [0x10, 'padfx'], [0x20, 'beatjump'], [0x30, 'sampler'], [0x40, 'hotcue'], [0x50, 'padfx'], [0x60, 'beatloop'], [0x70, 'sampler']].forEach(r => {
+      for (let i = 0; i < 8; i++) { put('n' + pc + ':' + (r[0] + i), {k:'pad', n:n, pad:i + 1, mode:r[1]}); put('n' + (pc + 1) + ':' + (r[0] + i), {k:'pad', n:n, pad:i + 1, mode:r[1], sh:1}); }
+    });
+  });
+  put('c6:' + 0x1F, {k:'abs', id:'xfader'}); put('c6:' + 0x17, {k:'abs', id:'cfx1'}); put('c6:' + 0x18, {k:'abs', id:'cfx2'});
+  put('c6:' + 0x40, {k:'rel', id:'browse'}); put('c6:' + 0x64, {k:'rel', id:'browse', sh:1});
+  put('n6:' + 0x41, {k:'btn', id:'browse'}); put('n6:' + 0x46, {k:'btn', id:'load1'}); put('n6:' + 0x47, {k:'btn', id:'load2'}); put('n6:' + 0x63, {k:'btn', id:'mastercue'});
+  put('n4:' + 0x63, {k:'btn', id:'fx-select'}); put('n4:' + 0x64, {k:'btn', id:'fx-select', sh:1});
+  put('n4:' + 0x4A, {k:'btn', id:'fx-beat-l'}); put('n4:' + 0x66, {k:'btn', id:'fx-beat-l', sh:1});
+  put('n4:' + 0x4B, {k:'btn', id:'fx-beat-r'}); put('n4:' + 0x6B, {k:'btn', id:'fx-beat-r', sh:1});
+  put('n4:' + 0x47, {k:'btn', id:'fx-onoff'}); put('n4:' + 0x43, {k:'btn', id:'fx-onoff', sh:1});
+  put('c4:' + 0x02, {k:'abs', id:'fx-depth'});
+  put('n4:' + 0x10, {k:'sw', id:'fx-ch', v:0}); put('n4:' + 0x11, {k:'sw', id:'fx-ch', v:.5}); put('n4:' + 0x14, {k:'sw', id:'fx-ch', v:1});
+  return m;
+}
+function buildMap() { MAP = Object.assign(defMap(), store.midiMap || {}); }
+const hex = v => '0x' + v.toString(16).toUpperCase().padStart(2, '0');
+const rawTxt = (ch, cc, a, v) => 'ch ' + (ch + 1) + ' · ' + (cc ? 'CC ' : 'note ') + hex(a) + ' · ' + v;
+const mName = m => m.k === 'pad' ? 'D' + m.n + ' pad ' + m.pad + ' (' + m.mode + ')' : (m.sh ? 'SHIFT + ' : '') + nameOf(m.id);
+function armPickup() {
+  Object.keys(pickup).forEach(k => delete pickup[k]);
+  if (MD.st !== 'on') return;
+  Object.keys(HW).forEach(id => { const s = sim.pos[id]; if (s != null && Math.abs(HW[id] - s) > .06) pickup[id] = Math.sign(HW[id] - s); });
+}
+function absIn(id, v) {
+  if (!C[id]) return;
+  if (/tempo$/.test(id) && store.midiFlip) v = 1 - v;
+  HW[id] = v;
+  if (pickup[id]) {
+    const s = sim.pos[id];
+    if (Math.abs(v - s) < .04 || Math.sign(v - s) !== pickup[id]) delete pickup[id];
+    else { const now = performance.now(); if (!Dr.on && now - MD.warnT > 2500) { MD.warnT = now; say(nameOf(id), 'Move it ' + posWord(id, s) + ' to pick it up where the screen has it.'); } return; }
+  }
+  userSet(id, v);
+}
+function jogIn(m, dlt) {
+  const n = m.n, d = AE.D[n]; drillAct({ty:'touch', id:m.id}); if (!d.track) return;
+  if (!d.playing || m.sh) { AE.setPos(n, Math.max(0, AE.pos(n) + dlt * (m.sh ? .2 : .012))); return; }
+  jogF[n] = clamp(jogF[n] * .5 + dlt * .015, -.3, .3); AE.nudge(n, AE.now() + .01, jogF[n]);
+  clearTimeout(jogT[n]); jogT[n] = setTimeout(() => { jogF[n] = 0; if (AE.D[n].track) AE.nudge(n, AE.now() + .01, 0); }, 90);
+}
+function wake() {
+  if (MD.busy) return; MD.busy = true;
+  const p = mode === 'drill' && hasDrill(S[si].steps[ki]) ? (startDrill(), Promise.resolve()) : (mode = 'try', startTry());
+  Promise.resolve(p).then(() => { MD.busy = false; if (!trying) say('Sound is off', 'Click anywhere on this page once, then use your FLX4.'); });
+}
+function onMidi(e) {
+  const d = e.data; if (!d || d.length < 3) return;
+  const ty = d[0] & 0xF0, ch = d[0] & 15, a = d[1], v = d[2];
+  if (ty !== 0x80 && ty !== 0x90 && ty !== 0xB0) return;
+  const cc = ty === 0xB0, down = ty === 0x90 && v > 0, key = (cc ? 'c' : 'n') + ch + ':' + a;
+  let m = MAP[key];
+  if (!m && cc && a >= 0x20 && a < 0x40) {
+    const mk = 'c' + ch + ':' + (a - 0x20), mm = MAP[mk];
+    if (mm && mm.k === 'abs' && MD.msb[mk] != null && trying && !Learn.on) absIn(mm.id, (MD.msb[mk] * 128 + v) / 16383);
+    return;
+  }
+  if (Learn.on) { learnMsg(key, cc, a, v, down, m, ch); return; }
+  if (down || cc) { MD.last = rawTxt(ch, cc, a, v) + '  →  ' + (m ? mName(m) : 'not mapped'); lastEl.textContent = MD.last; }
+  if (m && m.k === 'shift') { hwShift[m.n] = down; paintShift(); if (down) drillAct({ty:'hold', id:m.id}); return; }
+  if (!m) { if (down && trying) say('Unknown message', 'Your FLX4 sent ' + rawTxt(ch, cc, a, v) + '. Map it from the FLX4 menu at the top.'); return; }
+  if (m.k === 'abs') MD.msb[key] = v;
+  if (!trying) { if (m.k === 'abs') HW[m.id] = (/tempo$/.test(m.id) && store.midiFlip) ? 1 - v / 127 : v / 127; if (down || (cc && m.k !== 'abs')) wake(); return; }
+  const sh = !!m.sh;
+  if (m.k === 'btn') { if (down) { if (btnDown(m.id, sh) === 'hold') MD.held[key] = m.id; } else if (!cc && MD.held[key]) { btnUp(MD.held[key]); delete MD.held[key]; } }
+  else if (m.k === 'pad') {
+    const id = 'd' + m.n + '-pad' + m.pad, dk = AE.D[m.n];
+    if (down) { if (dk.mode !== m.mode && dk.track) { dk.mode = m.mode; paint(); } if (btnDown(id, sh) === 'hold') MD.held[key] = id; }
+    else if (MD.held[key]) { btnUp(MD.held[key]); delete MD.held[key]; }
+  }
+  else if (m.k === 'abs') absIn(m.id, v / 127);
+  else if (m.k === 'rel') {
+    const dl = v - 64;
+    if (m.id === 'browse') { drillAct({ty:'press', id:'browse', sh:sh}); const now = performance.now(); if (now - MD.warnT > 800) { MD.warnT = now; say((sh ? 'SHIFT + ' : '') + 'Rotary selector', sh ? C.browse.sh : firstLine(C.browse.d)); } }
+    else jogIn(m, dl);
+  }
+  else if (m.k === 'jt') { if (down) drillAct({ty:'touch', id:m.id}); }
+  else if (m.k === 'sw') { if (down) userSet(m.id, m.v); }
+  else if (m.k === 'swc') { if (down) userSet(m.id, ((Math.round(sim.pos[m.id] * 2) + 1) % 3) / 2); }
+}
+function bindInputs() {
+  const acc = MD.acc; if (!acc) return;
+  const ins = Array.from(acc.inputs.values()), pick = ins.filter(i => /flx|ddj/i.test(i.name || ''));
+  ins.forEach(i => { i.onmidimessage = null; });
+  const use = pick.length ? pick : ins;
+  use.forEach(i => { i.onmidimessage = onMidi; });
+  MD.st = use.length ? 'on' : 'none'; MD.name = use.map(i => i.name).join(', ');
+  if (MD.st === 'on') armPickup();
+  midiUi(); renderDrill();
+}
+function midiConnect() {
+  if (!navigator.requestMIDIAccess) { MD.st = 'unsupported'; midiUi(); openM(true); return Promise.resolve(); }
+  return navigator.requestMIDIAccess({sysex:false}).then(acc => {
+    MD.acc = acc; acc.onstatechange = bindInputs; bindInputs();
+    if (!store.midiAuto) { store.midiAuto = true; save(); }
+    if (MD.st === 'on') say('FLX4 connected', 'Touch any control. In Drill, every move is checked.');
+  }, err => { MD.st = 'blocked'; MD.err = (err && (err.name || err.message)) || ''; midiUi(); openM(true); });
+}
+const mBtn = $('#midiBtn'), mSheet = $('#msheet'), lastEl = $('#mLast');
+function midiUi() {
+  const s = MD.st;
+  mBtn.className = 'midi' + (s === 'on' ? ' on' : s === 'off' ? '' : ' err');
+  mBtn.lastElementChild.textContent = s === 'on' ? 'FLX4' : s === 'off' ? 'Connect FLX4' : s === 'none' ? 'Plug in FLX4' : 'No MIDI';
+  $('#mState').textContent = {on:'Connected', off:'Not connected', none:'Waiting for it', blocked:'Blocked here', unsupported:'Not supported'}[s];
+  $('#mText').textContent = {
+    off:'Plug your FLX4 in by USB, then connect. Chrome or Edge will ask to allow MIDI devices.',
+    on:'Listening to ' + MD.name + '. Your FLX4 now drives the decks on this page. Close rekordbox while you drill, or it will play along too. MASTER LEVEL and the headphone knobs aren’t sent over USB: drills ask you to confirm those.',
+    none:'MIDI is allowed, but no controller is plugged in. Connect the FLX4 by USB and it’s picked up as soon as it appears.',
+    blocked:'This page couldn’t open MIDI' + (MD.err ? ' (' + MD.err + ')' : '') + '. Inside claude.ai the browser may block it. Open the standalone copy of this page in Chrome or Edge instead.',
+    unsupported:'This browser can’t read MIDI controllers (Safari can’t). Open the page in Chrome or Edge.'
+  }[s];
+  $('#mConnect').hidden = s === 'on' || s === 'unsupported';
+  $('#mFlip').setAttribute('aria-checked', String(!!store.midiFlip));
+  lastEl.textContent = MD.last || 'Touch any control and its message shows here.';
+}
+function openM(on) { mSheet.hidden = scrim.hidden = !on; mBtn.setAttribute('aria-expanded', String(on)); if (on) { sheet.hidden = true; midiUi(); } }
+mBtn.addEventListener('click', () => { AE.ensure(); if (MD.st === 'off') midiConnect(); else openM(mSheet.hidden); });
+scrim.addEventListener('click', () => openM(false));
+$('#mConnect').addEventListener('click', () => { AE.ensure(); midiConnect(); });
+$('#mFlip').addEventListener('click', () => { store.midiFlip = !store.midiFlip; save(); midiUi(); });
+$('#mReset').addEventListener('click', () => { store.midiMap = {}; save(); buildMap(); say('Mapping reset', 'Back to the built-in FLX4 map.'); openM(false); });
+$('#mLearn').addEventListener('click', () => learnStart());
+
+/* ---------- re-map: click a control on screen, then touch it on the FLX4 ---------- */
+const Learn = {on:false, id:null};
+function learnStart() { openM(false); stopDemo(); Learn.on = true; Learn.id = null; svg.classList.add('learn'); inspect(null); setHL([]); say('Re-map a control', 'Click it on the screen panel. Esc cancels.'); }
+function learnEnd() { Learn.on = false; Learn.id = null; svg.classList.remove('learn'); setHL(Dr.on ? [] : curHL()); }
+function learnPick(id) {
+  const o = C[id]; if (!o || o.t === 'meter') return;
+  Learn.id = id; setHL([id]);
+  say(nameOf(id), /knob|fade|slide/.test(o.t) ? 'Now move it on your FLX4.' : /ring|jog|enc/.test(o.t) ? 'Now turn it on your FLX4.' : 'Now press it on your FLX4. Hold SHIFT with it to map its second function.');
+}
+function learnMsg(key, cc, a, v, down, cur, ch) {
+  if (cur && cur.k === 'shift') { hwShift[cur.n] = down; return; }
+  lastEl.textContent = MD.last = rawTxt(ch, cc, a, v);
+  const id = Learn.id; if (!id) return;
+  const o = C[id], t = o.t, sh = hwShift[1] || hwShift[2] ? 1 : 0; let ent = null;
+  if (/knob|fade|slide/.test(t)) { if (cc && !(a >= 0x20 && a < 0x40)) ent = {k:'abs', id:id}; }
+  else if (/ring|jog|enc/.test(t)) { if (cc) ent = id === 'browse' ? {k:'rel', id:id, sh:sh} : {k:'rel', id:id, n:+id[1], sh:sh}; }
+  else if (down) ent = o.pad ? {k:'pad', n:o.dk, pad:o.pad, mode:AE.D[o.dk].mode, sh:sh} : /shift$/.test(id) ? {k:'shift', id:id, n:+id[1]} : t === 'sw3' ? {k:'swc', id:id} : {k:'btn', id:id, sh:sh};
+  if (!ent) return;
+  store.midiMap = store.midiMap || {}; store.midiMap[key] = ent; save(); buildMap();
+  const nm = mName(ent); learnEnd(); say('Mapped', nm + '  ←  ' + rawTxt(ch, cc, a, v));
+}
+
+/* ---------- keys ---------- */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Shift') { if (trying && !shiftKey) { shiftKey = true; paintShift(); } return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!sheet.hidden) { if (e.key === 'Escape') { openSheet(false); menuBtn.focus(); } return; }
+  if (!mSheet.hidden) { if (e.key === 'Escape') { openM(false); mBtn.focus(); } return; }
+  if (Learn.on && e.key === 'Escape') { learnEnd(); say('', ''); return; }
+  const t = e.target && e.target.tagName; if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  else if (e.key === ' ' && t !== 'BUTTON') { e.preventDefault(); if (!trying) playOrPause(); }
+  else if (e.key === 'Escape') inspect(null);
+});
+document.addEventListener('keyup', e => { if (e.key === 'Shift' && shiftKey) { shiftKey = false; if (trying) paintShift(); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (Demo.on && !paused) togglePause(); else if (trying && !tryPaused) { tryPaused = true; AE.pause(); } }
+  else if (tryPaused) { tryPaused = false; AE.resume(); }
+});
+
+/* ---------- start ---------- */
+buildMap(); midiUi();
+document.addEventListener('pointerdown', () => { AE.ensure(); }, {once:true});
+if (store.midiAuto && navigator.requestMIDIAccess) {
+  const q = navigator.permissions && navigator.permissions.query ? navigator.permissions.query({name:'midi'}).then(r => r.state, () => 'granted') : Promise.resolve('granted');
+  q.then(s => { if (s === 'granted') midiConnect(); });
+}
+sizeCanvas();
+if (window.ResizeObserver) new ResizeObserver(sizeCanvas).observe(cv); else window.addEventListener('resize', sizeCanvas);
+go(si, ki);
+firstRun = false;
+requestAnimationFrame(frame);
+if (goNow === '-go') startDemo(); else if (goNow === '-try') startTry();
+})();
+</script>
+
+</body></html>
